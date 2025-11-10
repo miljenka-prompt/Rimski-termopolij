@@ -32,12 +32,6 @@
 </head>
 <body>
   
-  <div class="instructions">
-    <strong>📷 Rimski Termopolij AR</strong><br>
-    1. Usmjeri kameru na Hiro marker<br>
-    2. Tapni button za čuti starca<br>
-    kako galami na uličnom latinskom
-  </div>
 
   <a-scene 
     embedded 
@@ -45,19 +39,6 @@
     vr-mode-ui="enabled: false">
     
     <a-marker preset="hiro" id="hiro-marker">
-      
-      <a-text 
-        value="EUGE!" 
-        color="#FFD700" 
-        align="center" 
-        position="0 3.2 0" 
-        rotation="-90 0 0"
-        width="4"
-        font="roboto"
-        shader="flat"
-        side="double"
-        animation="property: rotation; to: -90 360 0; loop: true; dur: 3000; easing: linear">
-      </a-text>
       
       <a-plane
         src="rimski_termopolij_1.png"
@@ -80,14 +61,7 @@
         color="#8B0000"
         opacity="0.9"
         play-yell>
-        <a-text 
-          value="ČUJ STARCA\nULIČNI LATINSKI 1.ST." 
-          color="#FFD700" 
-          align="center" 
-          width="3.5"
-          position="0 0 0.01"
-          line-height="50">
-        </a-text>
+        
       </a-plane>
       
       <a-entity position="0 1.5 0" rotation="-90 0 0">
