@@ -1,45 +1,24 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QInspired Heritage AR – Rimski Termopolij</title>
+  <title>Rimski Termopolij AR</title>
   
+  <!-- A-Frame i AR.js -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-  
-  <style>
-    body { 
-      margin: 0; 
-      overflow: hidden;
-    }
-    .instructions {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 10px;
-      font-family: Arial, sans-serif;
-      z-index: 1000;
-      text-align: center;
-      max-width: 90%;
-    }
-  </style>
 </head>
 <body>
-  
-
   <a-scene 
     embedded 
-    arjs="sourceType: webcam; debugUIEnabled: false;"
+    arjs="sourceType: webcam; debugUIEnabled: false" 
     vr-mode-ui="enabled: false">
     
-    <a-marker preset="hiro" id="hiro-marker">
+    <!-- HIRO MARKER -->
+    <a-marker preset="hiro">
       
+      <!-- SLIKA TERMOPOLIJA -->
       <a-plane
         src="rimski_termopolij_1.png"
         width="1.5"
@@ -47,88 +26,27 @@
         rotation="-90 0 0"
         position="0 0.5 0"
         material="transparent: true; alphaTest: 0.2; shader: flat"
-        animation__float="property: position; dir: alternate; dur: 3000; easing: easeInOutSine; loop: true; to: 0 0.8 0; from: 0 0.5 0"
-        animation__sway="property: rotation; dir: alternate; dur: 5000; easing: easeInOutQuad; loop: true; to: -90 5 3; from: -90 -5 -3"
-        animation__scale="property: scale; dir: alternate; dur: 2500; easing: easeInOutQuad; loop: true; to: 1.05 1.05 1; from: 1 1 1">
+        animation__float="property: position; dir: alternate; dur: 3000; easing: easeInOutSine; loop: true; from: 0 0.5 0; to: 0 0.8 0"
+        animation__sway="property: rotation; dir: alternate; dur: 5000; easing: easeInOutQuad; loop: true; from: -90 -5 -3; to: -90 5 3"
+        animation__scale="property: scale; dir: alternate; dur: 2500; easing: easeInOutQuad; loop: true; from: 1 1 1; to: 1.05 1.05 1">
       </a-plane>
-      
-      <a-plane 
-        id="yell-trigger"
-        position="0 2.2 0"
-        width="2.5" 
-        height="0.8"
-        rotation="-90 0 0"
-        color="#8B0000"
-        opacity="0.9"
-        play-yell>
-        
-      </a-plane>
-      
-      <a-entity position="0 1.5 0" rotation="-90 0 0">
-        <a-text 
-          value="Rimski Termopolij"
-          color="#8B4513"
-          align="center"
-          width="2.5"
-          position="0.02 0 -0.02">
-        </a-text>
-        <a-text 
-          value="Rimski Termopolij"
-          color="#FFD700"
-          align="center"
-          width="2.5"
-          animation="property: scale; dir: alternate; dur: 2000; loop: true; to: 1.05 1.05 1; from: 1 1 1">
-        </a-text>
+
+      <!-- ZVUK – autoplay -->
+      <a-entity 
+        sound="src: rimljanin-galami.mp3; autoplay: true; loop: true; volume: 1.0">
       </a-entity>
-      
-      <a-text 
-        value="Antička kavana - 1. stoljeće"
-        color="white"
-        align="center"
-        width="2"
-        position="0 1.2 0"
-        rotation="-90 0 0">
-      </a-text>
-      
+
+      <!-- SVJETLO -->
       <a-entity light="type: ambient; intensity: 0.6"></a-entity>
       <a-entity light="type: point; intensity: 0.8" position="0 2 1"></a-entity>
-      
+
     </a-marker>
-    
-    <a-entity 
-      id="roman-yell"
-      sound="src: url(rimljanin-galami.mp3); autoplay: false; loop: false; volume: 1.0">
-    </a-entity>
-    
+
+    <!-- KAMERA -->
     <a-entity camera></a-entity>
   </a-scene>
-
-  <script>
-    AFRAME.registerComponent('play-yell', {
-      init: function () {
-        this.el.addEventListener('click', () => {
-          const sound = document.querySelector('#roman-yell').components.sound;
-          if (sound && !sound.isPlaying) {
-            sound.playSound();
-            console.log('🔊 Stari Rimljanin galami na uličnom latinskom!');
-          }
-        });
-      }
-    });
-    
-    const marker = document.querySelector('#hiro-marker');
-    marker.addEventListener('markerFound', function() {
-      console.log('✅ Hiro marker detektiran!');
-      document.querySelector('.instructions').style.display = 'none';
-    });
-    marker.addEventListener('markerLost', function() {
-      console.log('❌ Marker izgubljen');
-      document.querySelector('.instructions').style.display = 'block';
-    });
-  </script>
 </body>
 </html>
-```
 
 
 
@@ -147,9 +65,3 @@
 
 
 
-
-
-
-
-
-                                    
