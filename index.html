@@ -44,7 +44,7 @@
 
 <body>
 
-  <!-- Overlay za pokretanje (jer iOS traži user gesture za kameru) -->
+  <!-- Overlay za pokretanje (potrebno za iOS) -->
   <div id="start-overlay">
     <h2>▶ Pokreni AR Termopolij</h2>
     <p>Usmjeri kameru prema Hiro markeru.</p>
@@ -59,9 +59,16 @@
     vr-mode-ui="enabled: false"
   >
 
-    <!-- Assets (video se ovdje učitava ali je skriven) -->
+    <!-- Assets (video se učitava ovdje) -->
     <a-assets>
-      <video id="termopolij-video" preload="auto" playsinline webkit-playsinline loop crossorigin="anonymous">
+      <video id="termopolij-video"
+             preload="auto"
+             autoplay
+             muted
+             playsinline
+             webkit-playsinline
+             loop
+             crossorigin="anonymous">
         <source src="demo_termopolij.mp4" type="video/mp4">
       </video>
     </a-assets>
@@ -73,7 +80,7 @@
         src="#termopolij-video"
         width="2"
         height="1"
-        rotation="-90 0 0"
+        rotation="90 0 0"
         visible="false"
       ></a-video>
     </a-marker>
@@ -89,9 +96,10 @@
     const video = document.getElementById("termopolij-video");
     const videoPlane = document.getElementById("video-plane");
 
-    // Pokretanje – mora biti user gesture
+    // Pokretanje – user gesture obavezan
     startBtn.addEventListener("click", () => {
       overlay.style.display = "none";
+      video.play(); // osigurava inicijalizaciju teksture
     });
 
     // Marker pronađen
@@ -126,9 +134,4 @@
 
 
 
-
-
-
-
-
-
+      
