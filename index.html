@@ -9,7 +9,7 @@
 </head>
 <body style="margin:0; overflow:hidden">
 
-  <!-- Button za pokretanje zvuka - izvan <a-scene> -->
+  <!-- Button za zvuk -->
   <button id="playSound"
     style="position:fixed;top:20px;left:20px;z-index:999;padding:14px 24px;font-size:1.2em;">
     Pokreni zvuk
@@ -18,39 +18,37 @@
   <video id="vid"
     src="https://miljenka-prompt.github.io/Rimski-termopolij/assets/demo_termopolij.mp4"
     preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"
-    style="display:none">
-  </video>
+    style="display:none"></video>
 
   <a-scene embedded arjs="sourceType:webcam; debugUIEnabled:false;">
     <a-marker preset="hiro">
       <a-video src="#vid"
         width="2" height="1.125"
         position="0 0.5 0"
-        rotation="-90 0 0"
-        playsinline webkit-playsinline>
+        rotation="-90 0 0">
       </a-video>
     </a-marker>
-
     <a-entity camera></a-entity>
   </a-scene>
-
-  <!-- Script za audio-user gesture -->
+  
   <script>
+    // Samo user gesture - unmute i play za zvuk
     document.getElementById('playSound').onclick = function() {
       var vid = document.getElementById('vid');
       vid.muted = false;
-      vid.currentTime = 0; // po želji, starta od početka
       vid.play();
-      this.style.display = 'none'; // sakrij nakon klika
+      this.style.display = 'none';
     };
-    // Za svaki slučaj forsiraj play kad je marker pronađen!
-    document.querySelector('a-marker').addEventListener('markerFound', () => {
-      const vid = document.getElementById('vid');
+    // Kada marker pronađen, pokreće video u AR
+    document.querySelector('a-marker').addEventListener('markerFound', function () {
+      var vid = document.getElementById('vid');
       vid.play();
     });
   </script>
 </body>
 </html>
+
+
 
 
 
