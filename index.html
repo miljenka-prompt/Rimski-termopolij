@@ -9,49 +9,35 @@
 </head>
 <body style="margin:0; overflow:hidden">
 
-  <!-- PRELOAD videa s APSOLUTNOM raw URL-om (ovo je ključ za GitHub Pages!) -->
-  <video 
-    id="rimski-video" 
-    src="https://github.com/miljenka-prompt/miljenka-prompt.github.io/raw/main/assets/demo_termopolij.mp4"
-    preload="auto" 
-    loop 
-    muted 
-    playsinline 
-    webkit-playsinline 
-    crossorigin="anonymous"
+  <!-- TOČNA raw putanja za tvoj repo -->
+  <video id="vid"
+    src="https://raw.githubusercontent.com/miljenka-prompt/Rimski-termopolij/main/assets/demo_termopolij.mp4"
+    preload="auto" loop muted playsinline webkit-playsinline crossorigin="anonymous"
     style="display:none">
   </video>
 
   <a-scene embedded arjs="sourceType:webcam; debugUIEnabled:false;">
-    
+
     <a-marker preset="hiro">
-      <a-video 
-        src="#rimski-video"
-        width="2" 
-        height="1.125"
+      <a-video src="#vid"
+        width="2" height="1.125"
         position="0 0.5 0"
         rotation="-90 0 0"
-        autoplay 
-        loop 
-        muted
-        playsinline>
+        muted playsinline webkit-playsinline>
       </a-video>
     </a-marker>
+
+    <!-- Ovo je ključno za mobitele – forsira play kad marker vidiš -->
+    <script>
+      document.querySelector('a-marker').addEventListener('markerFound', () => {
+        document.getElementById('vid').play().catch(() => {});
+      });
+    </script>
 
     <a-entity camera></a-entity>
   </a-scene>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
 
 
 
