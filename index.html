@@ -1,121 +1,72 @@
 <!DOCTYPE html>
-<html lang="hr">
-<head>
-  <meta charset="UTF-8">
-  <title>Salona Termopolij AR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AR.js Video Marker Demo</title>
 
-  <!-- AR.js + A-Frame -->
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: black;
-      font-family: Arial, sans-serif;
-    }
-    #start-overlay {
-      position: absolute;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.85);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-      text-align: center;
-    }
-    #start-overlay button {
-      margin-top: 20px;
-      font-size: 18px;
-      padding: 12px 24px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      background: white;
-      color: black;
-    }
-  </style>
-</head>
+    <!-- AR.js -->
+    <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.5/aframe/build/aframe-ar.js"></script>
 
-<body>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #arjsDebugUIContainer { display:none !important; }
+    </style>
+  </head>
 
-  <!-- Overlay za pokretanje (potrebno za iOS) -->
-  <div id="start-overlay">
-    <h2>▶ Pokreni AR Termopolij</h2>
-    <p>Usmjeri kameru prema Hiro markeru.</p>
-    <button id="start-btn">Pokreni</button>
-  </div>
+  <body>
+    <a-scene
+        vr-mode-ui="enabled: false"
+        embedded
+        arjs="sourceType: webcam; debugUIEnabled: false;"
+    >
 
-  <!-- AR SCENE -->
-  <a-scene
-    id="scene"
-    embedded
-    arjs="sourceType: webcam; debugUIEnabled: false;"
-    vr-mode-ui="enabled: false"
-  >
+      <!-- VIDEO DEFINICIJA -->
+      <video
+        id="vid"
+        src="./assets/demo_termopolij.mp4"
+        preload="auto"
+        crossorigin="anonymous"
+        playsinline
+        webkit-playsinline
+      ></video>
 
-    <!-- Assets (video se učitava ovdje) -->
-    <a-assets>
-      <video id="termopolij-video"
-             preload="auto"
-             autoplay
-             muted
-             playsinline
-             webkit-playsinline
-             loop
-             crossorigin="anonymous">
-        <source src="demo_termopolij.mp4" type="video/mp4">
-      </video>
-    </a-assets>
+      <!-- MARKER + VIDEO PRIKAZ -->
+      <a-marker preset="hiro">
+        <a-video
+          src="#vid"
+          width="1"
+          height="0.6"
+          position="0 0 0"
+        ></a-video>
+      </a-marker>
 
-    <!-- Marker -->
-    <a-marker type="hiro" id="hiroMarker">
-      <a-video
-        id="video-plane"
-        src="#termopolij-video"
-        width="2"
-        height="1"
-        rotation="90 0 0"
-        visible="false"
-      ></a-video>
-    </a-marker>
+      <a-entity camera></a-entity>
+    </a-scene>
 
-    <a-entity camera></a-entity>
+    <script>
+      // Pokreni video kad se marker pojavi, pauziraj kad nestane
+      AFRAME.registerComponent('markerhandler', {
+        init: function () {
+          const marker = this.el;
+          const video = document.querySelector("#vid");
 
-  </a-scene>
+          marker.addEventListener('markerFound', () => {
+            video.play();
+          });
 
-  <script>
-    const startBtn = document.getElementById("start-btn");
-    const overlay = document.getElementById("start-overlay");
-    const marker = document.getElementById("hiroMarker");
-    const video = document.getElementById("termopolij-video");
-    const videoPlane = document.getElementById("video-plane");
+          marker.addEventListener('markerLost', () => {
+            video.pause();
+          });
+        }
+      });
 
-    // Pokretanje – user gesture obavezan
-    startBtn.addEventListener("click", () => {
-      overlay.style.display = "none";
-      video.play(); // osigurava inicijalizaciju teksture
-    });
-
-    // Marker pronađen
-    marker.addEventListener("markerFound", () => {
-      videoPlane.setAttribute("visible", "true");
-      video.play();
-    });
-
-    // Marker izgubljen
-    marker.addEventListener("markerLost", () => {
-      video.pause();
-      videoPlane.setAttribute("visible", "false");
-    });
-  </script>
-
-</body>
+      // Aktiviraj handler
+      document.querySelector("a-marker").setAttribute("markerhandler", "");
+    </script>
+  </body>
 </html>
 
 
@@ -128,6 +79,12 @@
 
 
 
+
+
+
+
+
+             
 
 
 
