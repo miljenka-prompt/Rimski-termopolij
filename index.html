@@ -9,12 +9,12 @@
 </head>
 <body style="margin:0; overflow:hidden">
 
-  <!-- Button za pokretanje zvuka -->
-  <button id="playSound" style="position:absolute;top:10px;left:10px;z-index:999;">
+  <!-- Button za pokretanje zvuka - izvan <a-scene> -->
+  <button id="playSound"
+    style="position:fixed;top:20px;left:20px;z-index:999;padding:14px 24px;font-size:1.2em;">
     Pokreni zvuk
   </button>
 
-  <!-- Pravilni GitHub Pages link za video, bez muted -->
   <video id="vid"
     src="https://miljenka-prompt.github.io/Rimski-termopolij/assets/demo_termopolij.mp4"
     preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"
@@ -27,34 +27,30 @@
         width="2" height="1.125"
         position="0 0.5 0"
         rotation="-90 0 0"
-        playsinline
-        webkit-playsinline>
+        playsinline webkit-playsinline>
       </a-video>
     </a-marker>
 
-    <!-- Forsirano play kad marker vidiš -->
-    <script>
-      document.querySelector('a-marker').addEventListener('markerFound', () => {
-        const vid = document.getElementById('vid');
-        vid.play().catch(() => {});
-      });
-
-      // Pokretanje zvuka na klik buttona
-      document.getElementById('playSound').onclick = () => {
-        const vid = document.getElementById('vid');
-        vid.muted = false;
-        vid.play();
-        document.getElementById('playSound').style.display = 'none'; // sakrij button nakon klika
-      };
-    </script>
-
     <a-entity camera></a-entity>
   </a-scene>
+
+  <!-- Script za audio-user gesture -->
+  <script>
+    document.getElementById('playSound').onclick = function() {
+      var vid = document.getElementById('vid');
+      vid.muted = false;
+      vid.currentTime = 0; // po želji, starta od početka
+      vid.play();
+      this.style.display = 'none'; // sakrij nakon klika
+    };
+    // Za svaki slučaj forsiraj play kad je marker pronađen!
+    document.querySelector('a-marker').addEventListener('markerFound', () => {
+      const vid = document.getElementById('vid');
+      vid.play();
+    });
+  </script>
 </body>
 </html>
-
-
-
 
 
 
