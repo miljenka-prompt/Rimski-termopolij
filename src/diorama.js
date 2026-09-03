@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
 const MATERIAL_BASE_OPACITY = "baseOpacity";
 const UP = new THREE.Vector3(0, 1, 0);
@@ -52,6 +53,20 @@ function cylinderBetween(start, end, radius, material, radialSegments = 10) {
   const direction = endPoint.clone().sub(startPoint);
   const object = mesh(
     new THREE.CylinderGeometry(radius, radius, direction.length(), radialSegments),
+    material,
+  );
+  object.position.copy(startPoint).add(endPoint).multiplyScalar(0.5);
+  object.quaternion.setFromUnitVectors(UP, direction.normalize());
+  return object;
+}
+
+function capsuleBetween(start, end, radius, material, capSegments = 5, radialSegments = 12) {
+  const startPoint = new THREE.Vector3(...start);
+  const endPoint = new THREE.Vector3(...end);
+  const direction = endPoint.clone().sub(startPoint);
+  const straightLength = Math.max(direction.length() - radius * 2, 0.001);
+  const object = mesh(
+    new THREE.CapsuleGeometry(radius, straightLength, capSegments, radialSegments),
     material,
   );
   object.position.copy(startPoint).add(endPoint).multiplyScalar(0.5);
@@ -170,65 +185,78 @@ function makeRomanEumachus() {
   const group = new THREE.Group();
   group.name = "EumachusRomanFigure";
 
-  const skin = standardMaterial(0xad7352, { roughness: 0.94 });
-  const tunic = standardMaterial(0xc2a56f, { roughness: 1 });
-  const clavus = standardMaterial(0x71362e, { roughness: 0.96 });
+  const skin = standardMaterial(0xb67958, { roughness: 0.96 });
+  const tunic = standardMaterial(0xc7b38a, { roughness: 1 });
+  const clavus = standardMaterial(0x765044, { roughness: 0.98 });
   const leather = standardMaterial(0x513325, { roughness: 0.9 });
-  const bronze = standardMaterial(0xb4864d, { metalness: 0.34, roughness: 0.62 });
-  const hair = standardMaterial(0x35251e, { roughness: 1 });
+  const bronze = standardMaterial(0xa97843, { metalness: 0.28, roughness: 0.7 });
+  const features = standardMaterial(0x4b3028, { roughness: 1 });
 
-  group.add(mesh(new THREE.CylinderGeometry(0.27, 0.38, 0.82, 14), tunic, [0, 1.205, 0]));
-  group.add(mesh(new THREE.CylinderGeometry(0.385, 0.39, 0.075, 14), clavus, [0, 0.81, 0]));
-  group.add(mesh(new THREE.TorusGeometry(0.29, 0.025, 7, 24), leather, [0, 1.25, 0], [Math.PI / 2, 0, 0]));
-  group.add(mesh(new THREE.BoxGeometry(0.09, 0.08, 0.035), bronze, [0, 1.25, 0.292]));
+  const chest = mesh(new RoundedBoxGeometry(0.58, 0.44, 0.28, 5, 0.065), tunic, [0, 1.43, 0]);
+  chest.scale.x = 1.05;
+  group.add(chest);
+
+  const skirt = mesh(new THREE.CylinderGeometry(0.285, 0.35, 0.55, 18), tunic, [0, 1.06, 0]);
+  skirt.scale.set(1.03, 1, 0.54);
+  group.add(skirt);
+
+  const belt = mesh(new RoundedBoxGeometry(0.61, 0.06, 0.3, 4, 0.018), leather, [0, 1.265, 0]);
+  group.add(belt);
+  group.add(mesh(new RoundedBoxGeometry(0.075, 0.065, 0.022, 3, 0.009), bronze, [0, 1.265, 0.163]));
   [-0.09, 0.09].forEach((x) => {
-    group.add(mesh(new THREE.BoxGeometry(0.04, 0.58, 0.018), clavus, [x, 1.18, 0.3]));
+    group.add(mesh(new RoundedBoxGeometry(0.035, 0.64, 0.012, 3, 0.005), clavus, [x, 1.32, 0.174]));
   });
 
-  [-0.13, 0.13].forEach((x) => {
-    group.add(mesh(new THREE.CylinderGeometry(0.07, 0.075, 0.65, 10), skin, [x, 0.47, 0]));
-    group.add(mesh(new THREE.BoxGeometry(0.18, 0.1, 0.34), leather, [x, 0.115, 0.075]));
-    [0.3, 0.49].forEach((y) => {
-      group.add(mesh(new THREE.TorusGeometry(0.075, 0.012, 6, 16), leather, [x, y, 0], [Math.PI / 2, 0, 0]));
-    });
+  const leftHip = [-0.12, 0.81, 0.01];
+  const leftAnkle = [-0.14, 0.18, 0.07];
+  const rightHip = [0.12, 0.81, -0.01];
+  const rightAnkle = [0.16, 0.18, -0.035];
+  group.add(capsuleBetween(leftHip, leftAnkle, 0.057, skin));
+  group.add(capsuleBetween(rightHip, rightAnkle, 0.057, skin));
+
+  const leftSandal = mesh(new RoundedBoxGeometry(0.15, 0.065, 0.28, 5, 0.028), leather, [-0.14, 0.09, 0.13], [0, -0.035, 0]);
+  const rightSandal = mesh(new RoundedBoxGeometry(0.15, 0.065, 0.28, 5, 0.028), leather, [0.16, 0.09, 0.035], [0, 0.05, 0]);
+  group.add(leftSandal, rightSandal);
+  [
+    [-0.2, 0.13, 0.07, -0.08, 0.13, 0.17],
+    [0.1, 0.13, -0.03, 0.22, 0.13, 0.07],
+  ].forEach(([x1, y1, z1, x2, y2, z2]) => {
+    group.add(cylinderBetween([x1, y1, z1], [x2, y2, z2], 0.009, leather, 6));
   });
 
-  const leftShoulder = [-0.29, 1.55, 0];
-  const leftSleeve = [-0.36, 1.4, 0.025];
-  const leftElbow = [-0.41, 1.18, 0.07];
-  const leftHand = [-0.35, 0.98, 0.14];
-  const rightShoulder = [0.29, 1.55, 0];
-  const rightSleeve = [0.37, 1.4, 0.03];
-  const rightElbow = [0.44, 1.2, 0.1];
-  const rightHand = [0.25, 1.12, 0.3];
+  const leftShoulder = [-0.31, 1.54, 0];
+  const leftSleeve = [-0.36, 1.39, 0.025];
+  const leftElbow = [-0.4, 1.18, 0.075];
+  const leftWrist = [-0.34, 0.995, 0.145];
+  const rightShoulder = [0.31, 1.54, 0];
+  const rightSleeve = [0.37, 1.39, 0.035];
+  const rightElbow = [0.43, 1.22, 0.115];
+  const rightWrist = [0.24, 1.13, 0.305];
 
-  group.add(cylinderBetween(leftShoulder, leftSleeve, 0.105, tunic));
-  group.add(cylinderBetween(leftSleeve, leftElbow, 0.072, skin));
-  group.add(cylinderBetween(leftElbow, leftHand, 0.066, skin));
-  group.add(mesh(new THREE.SphereGeometry(0.083, 12, 9), skin, leftHand));
-  group.add(cylinderBetween(rightShoulder, rightSleeve, 0.105, tunic));
-  group.add(cylinderBetween(rightSleeve, rightElbow, 0.072, skin));
-  group.add(cylinderBetween(rightElbow, rightHand, 0.066, skin));
-  group.add(mesh(new THREE.SphereGeometry(0.083, 12, 9), skin, rightHand));
+  group.add(capsuleBetween(leftShoulder, leftSleeve, 0.085, tunic));
+  group.add(capsuleBetween(leftSleeve, leftElbow, 0.053, skin));
+  group.add(capsuleBetween(leftElbow, leftWrist, 0.048, skin));
+  group.add(capsuleBetween(leftWrist, [-0.335, 0.92, 0.17], 0.044, skin, 4, 10));
+  group.add(capsuleBetween(rightShoulder, rightSleeve, 0.085, tunic));
+  group.add(capsuleBetween(rightSleeve, rightElbow, 0.053, skin));
+  group.add(capsuleBetween(rightElbow, rightWrist, 0.048, skin));
+  group.add(capsuleBetween(rightWrist, [0.16, 1.12, 0.37], 0.044, skin, 4, 10));
 
-  group.add(mesh(new THREE.CylinderGeometry(0.095, 0.105, 0.14, 10), skin, [0, 1.68, 0]));
-  const head = mesh(new THREE.SphereGeometry(0.18, 18, 14), skin, [0, 1.9, 0]);
-  head.scale.set(0.86, 1.06, 0.9);
+  group.add(mesh(new THREE.CylinderGeometry(0.082, 0.09, 0.13, 12), skin, [0, 1.69, 0]));
+  const head = mesh(new THREE.SphereGeometry(0.17, 24, 18), skin, [0, 1.89, 0]);
+  head.scale.set(0.79, 1.06, 0.83);
   group.add(head);
-  const hairCap = mesh(
-    new THREE.SphereGeometry(0.188, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.57),
-    hair,
-    [0, 1.955, -0.005],
-  );
-  hairCap.scale.set(0.9, 1, 0.94);
-  group.add(hairCap);
-  const beard = mesh(new THREE.SphereGeometry(0.135, 14, 10), hair, [0, 1.81, 0.13]);
-  beard.scale.set(0.82, 0.9, 0.36);
-  group.add(beard);
-  group.add(mesh(new THREE.ConeGeometry(0.035, 0.1, 6), skin, [0, 1.9, 0.19], [Math.PI / 2, 0, 0]));
-  [-0.057, 0.057].forEach((x) => {
-    group.add(mesh(new THREE.SphereGeometry(0.012, 8, 6), hair, [x, 1.945, 0.162]));
+  [-0.145, 0.145].forEach((x) => {
+    const ear = mesh(new THREE.SphereGeometry(0.035, 12, 8), skin, [x, 1.89, 0]);
+    ear.scale.set(0.42, 0.72, 0.36);
+    group.add(ear);
   });
+  group.add(mesh(new THREE.ConeGeometry(0.026, 0.075, 8), skin, [0, 1.89, 0.145], [Math.PI / 2, 0, 0]));
+  [-0.051, 0.051].forEach((x) => {
+    group.add(mesh(new THREE.SphereGeometry(0.009, 8, 6), features, [x, 1.925, 0.139]));
+  });
+  group.add(mesh(new RoundedBoxGeometry(0.052, 0.007, 0.008, 2, 0.003), features, [0, 1.82, 0.143]));
+  group.scale.setScalar(0.92);
   return group;
 }
 

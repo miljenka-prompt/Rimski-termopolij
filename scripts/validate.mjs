@@ -35,12 +35,17 @@ for (const htmlFile of ["index.html", "legacy/index.html"]) {
 }
 
 const dioramaSource = readFileSync(join(root, "src/diorama.js"), "utf8");
-for (const requiredFeature of ["makeThermopoliumArchitecture", "makeRomanEumachus"]) {
+for (const requiredFeature of [
+  "makeThermopoliumArchitecture",
+  "makeRomanEumachus",
+  "THREE.CapsuleGeometry",
+  "RoundedBoxGeometry",
+]) {
   if (!dioramaSource.includes(requiredFeature)) {
     failures.push("src/diorama.js: " + requiredFeature + " is missing");
   }
 }
-for (const removedFeature of ["makeTextSprite", "GLTFLoader"]) {
+for (const removedFeature of ["makeTextSprite", "GLTFLoader", "hairCap", "beard"]) {
   if (dioramaSource.includes(removedFeature)) {
     failures.push("src/diorama.js: obsolete " + removedFeature + " remains");
   }
