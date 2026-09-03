@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="hr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="theme-color" content="#111111" />
+    <title>Rimski termopolij — izvorni marker AR demo</title>
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.0/aframe/build/aframe-ar.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; background: #111; font-family: system-ui, sans-serif; }
+      .legacy-label { position: fixed; inset: 14px 14px auto; z-index: 1000; display: flex; gap: 8px; align-items: center; justify-content: space-between; color: #fff; pointer-events: none; }
+      .legacy-label span, .legacy-label a { background: rgba(0,0,0,.72); border: 1px solid rgba(255,255,255,.2); border-radius: 999px; padding: 9px 13px; font-size: 13px; }
+      .legacy-label a { color: #fff; text-decoration: none; pointer-events: auto; }
+      #playSound { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 999; padding: 14px 22px; border: 0; border-radius: 999px; font-size: 1rem; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <div class="legacy-label"><span>IZVORNI MARKER AR DEMO</span><a href="../">Nova verzija</a></div>
+    <button id="playSound" type="button">Pokreni zvuk</button>
+    <video id="vid" src="../assets/Termopolij_svađa1.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous" style="display:none"></video>
+    <a-scene embedded arjs="sourceType:webcam; debugUIEnabled:false;">
+      <a-marker preset="hiro">
+        <a-video src="#vid" width="2" height="1.125" position="0 0.5 0" rotation="-90 0 0"></a-video>
+      </a-marker>
+      <a-entity camera></a-entity>
+    </a-scene>
+    <script>
+      const video = document.getElementById("vid");
+      document.getElementById("playSound").addEventListener("click", (event) => {
+        video.muted = false;
+        void video.play();
+        event.currentTarget.hidden = true;
+      });
+      document.querySelector("a-marker").addEventListener("markerFound", () => void video.play());
+    </script>
+  </body>
+</html>
