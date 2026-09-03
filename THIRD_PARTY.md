@@ -1,16 +1,7 @@
 # Third-party assets
 
-## Quaternius Modular Character Outfits — Fantasy
-
-- Source: https://quaternius.com/packs/modularcharacteroutfitsfantasy.html
-- License: CC0 1.0 Universal
-- Use: provisional lightweight rigged male figure for Eumachus.
-- Delivery: loaded from the owner's existing `Psefizma_AR` repository so the
-  preview branch does not duplicate the same binary assets.
-
-The model is intentionally described as provisional in the source. The final
-historically reviewed Eumachus model can replace it without changing the WebAR
-or narrative architecture.
+The Eumachus figure and thermopolium are built from native Three.js geometry.
+The preview no longer loads the provisional Quaternius fantasy character.
 
 ## Three.js
 

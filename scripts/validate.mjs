@@ -35,8 +35,15 @@ for (const htmlFile of ["index.html", "legacy/index.html"]) {
 }
 
 const dioramaSource = readFileSync(join(root, "src/diorama.js"), "utf8");
-if (!dioramaSource.includes("Psefizma_AR/main/public/models/lumbarda/Greek_Male_Peasant.gltf")) {
-  failures.push("src/diorama.js: provisional model source is missing");
+for (const requiredFeature of ["makeThermopoliumArchitecture", "makeRomanEumachus"]) {
+  if (!dioramaSource.includes(requiredFeature)) {
+    failures.push("src/diorama.js: " + requiredFeature + " is missing");
+  }
+}
+for (const removedFeature of ["makeTextSprite", "GLTFLoader"]) {
+  if (dioramaSource.includes(removedFeature)) {
+    failures.push("src/diorama.js: obsolete " + removedFeature + " remains");
+  }
 }
 
 if (failures.length) {
@@ -44,4 +51,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Validated ${javascriptFiles.length} modules, 2 routes and the provisional model reference.`);
+console.log(`Validated ${javascriptFiles.length} modules, 2 routes, the thermopolium and the Roman figure.`);

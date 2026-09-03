@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const MATERIAL_BASE_OPACITY = "baseOpacity";
+const UP = new THREE.Vector3(0, 1, 0);
 
 function clampPixelRatio() {
   return Math.min(window.devicePixelRatio || 1, 2);
@@ -46,45 +46,17 @@ function mesh(geometry, material, position = [0, 0, 0], rotation = [0, 0, 0]) {
   return object;
 }
 
-function makeTextSprite(text, color = "#eadab9", width = 640, height = 180) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const context = canvas.getContext("2d");
-  context.clearRect(0, 0, width, height);
-  context.fillStyle = "rgba(8, 10, 12, .78)";
-  context.strokeStyle = "rgba(224, 186, 120, .55)";
-  context.lineWidth = 3;
-  context.beginPath();
-  if (typeof context.roundRect === "function") {
-    context.roundRect(4, 4, width - 8, height - 8, 26);
-  } else {
-    context.rect(4, 4, width - 8, height - 8);
-  }
-  context.fill();
-  context.stroke();
-  context.fillStyle = color;
-  context.font = "700 52px Georgia";
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(text, width / 2, height / 2 + 2);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
-  material.userData[MATERIAL_BASE_OPACITY] = 1;
-  const sprite = new THREE.Sprite(material);
-  sprite.scale.set(2.6, 0.73, 1);
-  return sprite;
-}
-
-function makeColumn(height = 1.8) {
-  const group = new THREE.Group();
-  const stone = standardMaterial(0xb9ad96, { roughness: 1 });
-  group.add(mesh(new THREE.CylinderGeometry(0.18, 0.22, height, 12), stone, [0, height / 2, 0]));
-  group.add(mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.12, 12), stone, [0, 0.06, 0]));
-  group.add(mesh(new THREE.CylinderGeometry(0.23, 0.23, 0.12, 12), stone, [0, height - 0.03, 0]));
-  return group;
+function cylinderBetween(start, end, radius, material, radialSegments = 10) {
+  const startPoint = new THREE.Vector3(...start);
+  const endPoint = new THREE.Vector3(...end);
+  const direction = endPoint.clone().sub(startPoint);
+  const object = mesh(
+    new THREE.CylinderGeometry(radius, radius, direction.length(), radialSegments),
+    material,
+  );
+  object.position.copy(startPoint).add(endPoint).multiplyScalar(0.5);
+  object.quaternion.setFromUnitVectors(UP, direction.normalize());
+  return object;
 }
 
 function makeAmphora(scale = 1, color = 0x985d3f) {
@@ -96,8 +68,12 @@ function makeAmphora(scale = 1, color = 0x985d3f) {
   group.add(mesh(new THREE.CylinderGeometry(0.085, 0.12, 0.32, 12), clay, [0, 0.68, 0]));
   group.add(mesh(new THREE.TorusGeometry(0.085, 0.025, 8, 20), clay, [0, 0.855, 0], [Math.PI / 2, 0, 0]));
   [-1, 1].forEach((side) => {
-    const handle = mesh(new THREE.TorusGeometry(0.12, 0.025, 7, 18, Math.PI), clay, [side * 0.13, 0.67, 0], [0, side * Math.PI / 2, Math.PI / 2]);
-    group.add(handle);
+    group.add(mesh(
+      new THREE.TorusGeometry(0.12, 0.025, 7, 18, Math.PI),
+      clay,
+      [side * 0.13, 0.67, 0],
+      [0, side * Math.PI / 2, Math.PI / 2],
+    ));
   });
   group.scale.setScalar(scale);
   return group;
@@ -107,54 +83,177 @@ function makeShield() {
   const group = new THREE.Group();
   const wood = standardMaterial(0x6c3028, { roughness: 0.82 });
   const bronze = standardMaterial(0xc49652, { metalness: 0.58, roughness: 0.42 });
-  group.add(mesh(new THREE.CylinderGeometry(0.48, 0.48, 0.08, 32), wood, [0, 0, 0], [Math.PI / 2, 0, 0]));
-  group.add(mesh(new THREE.TorusGeometry(0.42, 0.035, 10, 36), bronze));
-  group.add(mesh(new THREE.SphereGeometry(0.11, 14, 10), bronze, [0, 0, 0.06]));
+  group.add(mesh(new THREE.CylinderGeometry(0.43, 0.43, 0.07, 32), wood, [0, 0, 0], [Math.PI / 2, 0, 0]));
+  group.add(mesh(new THREE.TorusGeometry(0.37, 0.032, 10, 36), bronze));
+  group.add(mesh(new THREE.SphereGeometry(0.1, 14, 10), bronze, [0, 0, 0.055]));
   return group;
 }
 
-function makeHorseHouse() {
+function addDolia(group, x, z) {
+  const clay = standardMaterial(0x9a5d3f, { roughness: 1 });
+  const interior = standardMaterial(0x241c17, { roughness: 1 });
+  group.add(mesh(new THREE.CylinderGeometry(0.21, 0.18, 0.035, 24), interior, [x, 1.105, z]));
+  group.add(mesh(new THREE.TorusGeometry(0.225, 0.036, 9, 30), clay, [x, 1.13, z], [Math.PI / 2, 0, 0]));
+}
+
+function makeThermopoliumArchitecture() {
   const group = new THREE.Group();
-  const timber = standardMaterial(0x5a402d, { roughness: 1 });
-  const earth = standardMaterial(0x6e5840, { roughness: 1 });
-  group.add(mesh(new THREE.BoxGeometry(2.9, 0.12, 1.8), earth, [0, 0.06, 0]));
-  [-1.2, 1.2].forEach((x) => {
-    [-0.65, 0.65].forEach((z) => {
-      group.add(mesh(new THREE.CylinderGeometry(0.07, 0.09, 1.75, 8), timber, [x, 0.9, z]));
+  group.name = "AndautoniaThermopolium";
+
+  const floorStone = standardMaterial(0x6d675b, { roughness: 1 });
+  const grout = standardMaterial(0x4b4740, { roughness: 1 });
+  const warmPlaster = standardMaterial(0x9b684d, { roughness: 0.98 });
+  const palePlaster = standardMaterial(0xc1aa7f, { roughness: 1 });
+  const darkDado = standardMaterial(0x563c35, { roughness: 1 });
+  const limestone = standardMaterial(0xc1b69e, { roughness: 0.96 });
+  const wood = standardMaterial(0x5c3c28, { roughness: 0.94 });
+  const doorway = standardMaterial(0x17191a, { roughness: 1 });
+
+  group.add(mesh(new THREE.BoxGeometry(5.45, 0.16, 3.85), floorStone, [0, -0.08, 0]));
+  for (let x = -2.15; x <= 2.15; x += 0.72) {
+    group.add(mesh(new THREE.BoxGeometry(0.016, 0.012, 3.58), grout, [x, 0.008, 0]));
+  }
+  for (let z = -1.45; z <= 1.45; z += 0.58) {
+    group.add(mesh(new THREE.BoxGeometry(5.16, 0.012, 0.016), grout, [0, 0.009, z]));
+  }
+
+  group.add(mesh(new THREE.BoxGeometry(5.45, 2.5, 0.16), palePlaster, [0, 1.25, -1.84]));
+  group.add(mesh(new THREE.BoxGeometry(5.48, 0.72, 0.035), darkDado, [0, 0.42, -1.745]));
+  group.add(mesh(new THREE.BoxGeometry(0.16, 2.12, 2.65), palePlaster, [-2.65, 1.06, -0.58]));
+
+  [-1.75, -0.65, 0.45].forEach((x, index) => {
+    const panelColor = [0x7e4035, 0xb48a57, 0x755a43][index];
+    group.add(mesh(new THREE.BoxGeometry(0.82, 0.72, 0.025), standardMaterial(panelColor), [x, 1.55, -1.745]));
+    group.add(mesh(new THREE.BoxGeometry(0.7, 0.06, 0.03), limestone, [x, 1.24, -1.725]));
+  });
+
+  group.add(mesh(new THREE.BoxGeometry(1.02, 2.12, 0.03), doorway, [1.82, 1.06, -1.744]));
+  group.add(mesh(new THREE.BoxGeometry(1.18, 0.14, 0.24), limestone, [1.82, 2.16, -1.72]));
+  [-1, 1].forEach((side) => {
+    group.add(mesh(new THREE.BoxGeometry(0.14, 2.2, 0.22), limestone, [1.82 + side * 0.58, 1.1, -1.72]));
+  });
+
+  group.add(mesh(new THREE.BoxGeometry(1.55, 0.1, 0.34), wood, [-1.45, 1.43, -1.55]));
+  [-1.96, -0.94].forEach((x) => {
+    group.add(mesh(new THREE.BoxGeometry(0.08, 0.48, 0.08), wood, [x, 1.2, -1.56], [0, 0, x < -1.5 ? -0.34 : 0.34]));
+  });
+  [
+    [-1.85, 0x9a5d3f, 0.56],
+    [-1.43, 0xb4714d, 0.5],
+    [-1.04, 0x81503c, 0.54],
+  ].forEach(([x, color, scale]) => {
+    const amphora = makeAmphora(scale, color);
+    amphora.position.set(x, 1.44, -1.54);
+    group.add(amphora);
+  });
+
+  group.add(mesh(new THREE.BoxGeometry(3.62, 0.98, 0.8), warmPlaster, [0.3, 0.49, -0.46]));
+  group.add(mesh(new THREE.BoxGeometry(3.76, 0.11, 0.94), limestone, [0.3, 1.035, -0.46]));
+  group.add(mesh(new THREE.BoxGeometry(0.82, 0.98, 1.72), warmPlaster, [-1.28, 0.49, 0.02]));
+  group.add(mesh(new THREE.BoxGeometry(0.96, 0.11, 1.86), limestone, [-1.28, 1.035, 0.02]));
+
+  [-0.62, 0.34, 1.28].forEach((x) => addDolia(group, x, -0.46));
+  addDolia(group, -1.28, 0.28);
+
+  [-0.68, 0.3, 1.28].forEach((x, index) => {
+    const panel = standardMaterial([0x6b4137, 0x77513f, 0x5c4639][index], { roughness: 1 });
+    group.add(mesh(new THREE.BoxGeometry(0.7, 0.45, 0.025), panel, [x, 0.5, -0.045]));
+  });
+
+  const bowl = standardMaterial(0xb97850, { roughness: 0.96, side: THREE.DoubleSide });
+  group.add(mesh(new THREE.CylinderGeometry(0.18, 0.11, 0.1, 20, 1, true), bowl, [1.88, 1.14, -0.5]));
+  group.add(mesh(new THREE.TorusGeometry(0.18, 0.018, 7, 24), bowl, [1.88, 1.2, -0.5], [Math.PI / 2, 0, 0]));
+  return group;
+}
+
+function makeRomanEumachus() {
+  const group = new THREE.Group();
+  group.name = "EumachusRomanFigure";
+
+  const skin = standardMaterial(0xad7352, { roughness: 0.94 });
+  const tunic = standardMaterial(0xc2a56f, { roughness: 1 });
+  const clavus = standardMaterial(0x71362e, { roughness: 0.96 });
+  const leather = standardMaterial(0x513325, { roughness: 0.9 });
+  const bronze = standardMaterial(0xb4864d, { metalness: 0.34, roughness: 0.62 });
+  const hair = standardMaterial(0x35251e, { roughness: 1 });
+
+  group.add(mesh(new THREE.CylinderGeometry(0.27, 0.38, 0.82, 14), tunic, [0, 1.205, 0]));
+  group.add(mesh(new THREE.CylinderGeometry(0.385, 0.39, 0.075, 14), clavus, [0, 0.81, 0]));
+  group.add(mesh(new THREE.TorusGeometry(0.29, 0.025, 7, 24), leather, [0, 1.25, 0], [Math.PI / 2, 0, 0]));
+  group.add(mesh(new THREE.BoxGeometry(0.09, 0.08, 0.035), bronze, [0, 1.25, 0.292]));
+  [-0.09, 0.09].forEach((x) => {
+    group.add(mesh(new THREE.BoxGeometry(0.04, 0.58, 0.018), clavus, [x, 1.18, 0.3]));
+  });
+
+  [-0.13, 0.13].forEach((x) => {
+    group.add(mesh(new THREE.CylinderGeometry(0.07, 0.075, 0.65, 10), skin, [x, 0.47, 0]));
+    group.add(mesh(new THREE.BoxGeometry(0.18, 0.1, 0.34), leather, [x, 0.115, 0.075]));
+    [0.3, 0.49].forEach((y) => {
+      group.add(mesh(new THREE.TorusGeometry(0.075, 0.012, 6, 16), leather, [x, y, 0], [Math.PI / 2, 0, 0]));
     });
   });
-  group.add(mesh(new THREE.BoxGeometry(2.75, 0.12, 0.12), timber, [0, 1.7, -0.65]));
-  group.add(mesh(new THREE.BoxGeometry(2.75, 0.12, 0.12), timber, [0, 1.7, 0.65]));
 
-  const shield = makeShield();
-  shield.position.set(-0.86, 1.03, 0.72);
-  shield.rotation.x = -0.12;
-  group.add(shield);
+  const leftShoulder = [-0.29, 1.55, 0];
+  const leftSleeve = [-0.36, 1.4, 0.025];
+  const leftElbow = [-0.41, 1.18, 0.07];
+  const leftHand = [-0.35, 0.98, 0.14];
+  const rightShoulder = [0.29, 1.55, 0];
+  const rightSleeve = [0.37, 1.4, 0.03];
+  const rightElbow = [0.44, 1.2, 0.1];
+  const rightHand = [0.25, 1.12, 0.3];
 
-  const spear = mesh(new THREE.CylinderGeometry(0.025, 0.025, 2.25, 8), standardMaterial(0x7a5a39), [0.85, 1.05, 0.72], [0, 0, 0.18]);
-  group.add(spear);
-  const head = mesh(new THREE.ConeGeometry(0.075, 0.27, 5), standardMaterial(0xa4a7a2, { metalness: 0.72, roughness: 0.38 }), [0.65, 2.15, 0.72], [0, 0, 0.18]);
+  group.add(cylinderBetween(leftShoulder, leftSleeve, 0.105, tunic));
+  group.add(cylinderBetween(leftSleeve, leftElbow, 0.072, skin));
+  group.add(cylinderBetween(leftElbow, leftHand, 0.066, skin));
+  group.add(mesh(new THREE.SphereGeometry(0.083, 12, 9), skin, leftHand));
+  group.add(cylinderBetween(rightShoulder, rightSleeve, 0.105, tunic));
+  group.add(cylinderBetween(rightSleeve, rightElbow, 0.072, skin));
+  group.add(cylinderBetween(rightElbow, rightHand, 0.066, skin));
+  group.add(mesh(new THREE.SphereGeometry(0.083, 12, 9), skin, rightHand));
+
+  group.add(mesh(new THREE.CylinderGeometry(0.095, 0.105, 0.14, 10), skin, [0, 1.68, 0]));
+  const head = mesh(new THREE.SphereGeometry(0.18, 18, 14), skin, [0, 1.9, 0]);
+  head.scale.set(0.86, 1.06, 0.9);
   group.add(head);
-  const label = makeTextSprite("DOMVS · EQVI");
-  label.position.set(0, 2.12, 0);
-  label.scale.multiplyScalar(0.66);
-  group.add(label);
+  const hairCap = mesh(
+    new THREE.SphereGeometry(0.188, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.57),
+    hair,
+    [0, 1.955, -0.005],
+  );
+  hairCap.scale.set(0.9, 1, 0.94);
+  group.add(hairCap);
+  const beard = mesh(new THREE.SphereGeometry(0.135, 14, 10), hair, [0, 1.81, 0.13]);
+  beard.scale.set(0.82, 0.9, 0.36);
+  group.add(beard);
+  group.add(mesh(new THREE.ConeGeometry(0.035, 0.1, 6), skin, [0, 1.9, 0.19], [Math.PI / 2, 0, 0]));
+  [-0.057, 0.057].forEach((x) => {
+    group.add(mesh(new THREE.SphereGeometry(0.012, 8, 6), hair, [x, 1.945, 0.162]));
+  });
   return group;
 }
 
-function makeNameToken() {
+function makeNameTokens() {
   const group = new THREE.Group();
-  const bronze = standardMaterial(0xb68545, { metalness: 0.66, roughness: 0.38 });
-  const token = mesh(new THREE.CylinderGeometry(0.72, 0.72, 0.11, 48), bronze, [0, 1.1, 0], [Math.PI / 2, 0, 0]);
-  group.add(token);
-  const greek = makeTextSprite("ΕΥΜΑΧΟΣ");
-  greek.position.set(0, 1.22, 0.09);
-  greek.scale.multiplyScalar(0.58);
-  group.add(greek);
-  const latin = makeTextSprite("EVMACHVS", "#d5a45e");
-  latin.position.set(0, 0.52, 0.2);
-  latin.scale.multiplyScalar(0.52);
-  group.add(latin);
+  const bronze = standardMaterial(0xb68545, { metalness: 0.62, roughness: 0.42 });
+  const silver = standardMaterial(0xaaa08d, { metalness: 0.46, roughness: 0.52 });
+  [[-0.16, bronze], [0.3, silver]].forEach(([x, material], index) => {
+    group.add(mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.045, 36), material, [x, 1.13, -0.18], [0, 0, index ? 0.08 : -0.08]));
+    group.add(mesh(new THREE.TorusGeometry(0.145, 0.012, 7, 24), material, [x, 1.158, -0.18], [Math.PI / 2, 0, 0]));
+  });
+  return group;
+}
+
+function makeHorseMemory() {
+  const group = new THREE.Group();
+  const shield = makeShield();
+  shield.position.set(-2.13, 1.26, -1.62);
+  shield.rotation.z = -0.08;
+  group.add(shield);
+  const timber = standardMaterial(0x6b4930, { roughness: 1 });
+  const iron = standardMaterial(0x9b9c95, { metalness: 0.68, roughness: 0.4 });
+  group.add(mesh(new THREE.CylinderGeometry(0.026, 0.026, 1.9, 8), timber, [-1.67, 1.03, -1.58], [0, 0, 0.17]));
+  group.add(mesh(new THREE.ConeGeometry(0.07, 0.25, 6), iron, [-1.84, 1.98, -1.58], [0, 0, 0.17]));
+  group.add(mesh(new THREE.TorusGeometry(0.26, 0.035, 8, 28), standardMaterial(0x4b3026), [-1.12, 1.72, -1.62]));
   return group;
 }
 
@@ -162,151 +261,82 @@ function makeBrokenLinks() {
   const group = new THREE.Group();
   const iron = standardMaterial(0x555b5c, { metalness: 0.72, roughness: 0.52 });
   for (let index = 0; index < 7; index += 1) {
-    const link = mesh(new THREE.TorusGeometry(0.19, 0.045, 9, 22), iron, [-0.72 + index * 0.24, 0.18 + Math.sin(index) * 0.03, 0]);
-    link.rotation.x = Math.PI / 2;
-    link.rotation.y = index % 2 ? Math.PI / 2 : 0;
-    if (index === 3) link.rotation.z = 0.42;
-    group.add(link);
+    group.add(mesh(
+      new THREE.TorusGeometry(0.12, 0.03, 8, 18),
+      iron,
+      [-1.52 + (index % 3) * 0.22, 1.16 + index * 0.003, -0.18 + Math.floor(index / 3) * 0.2],
+      [Math.PI / 2, index % 2 ? Math.PI / 2 : 0, index * 0.12],
+    ));
   }
-  const stone = standardMaterial(0x716859, { roughness: 1 });
-  group.add(mesh(new THREE.BoxGeometry(1.5, 0.18, 1.05), stone, [0, 0.02, 0]));
-  const label = makeTextSprite("CAPTIVVS ?", "#caa072");
-  label.position.set(0, 1.25, 0);
-  label.scale.multiplyScalar(0.55);
-  group.add(label);
   return group;
 }
 
-function makeTriclinium() {
+function makeTricliniumMemory() {
   const group = new THREE.Group();
-  const couch = standardMaterial(0x7b3d32, { roughness: 0.96 });
+  const couch = standardMaterial(0x754237, { roughness: 0.96 });
   const wood = standardMaterial(0x4e3427, { roughness: 0.92 });
-  const mosaic = standardMaterial(0xb6aa91, { roughness: 1 });
-  group.add(mesh(new THREE.BoxGeometry(3.1, 0.1, 2.25), mosaic, [0, 0.05, 0]));
-  [-1, 1].forEach((x) => {
-    group.add(mesh(new THREE.BoxGeometry(0.68, 0.28, 1.75), couch, [x, 0.28, 0]));
-    group.add(mesh(new THREE.BoxGeometry(0.68, 0.48, 0.18), couch, [x, 0.49, -0.78]));
-  });
-  group.add(mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.08, 24), wood, [0, 0.45, 0]));
-  const scroll = mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.72, 12), standardMaterial(0xd4c49f), [0, 0.55, 0], [0, 0, Math.PI / 2]);
-  group.add(scroll);
-  const label = makeTextSprite("μῆνιν ἄειδε…", "#dfc895");
-  label.position.set(0, 1.62, -0.25);
-  label.scale.multiplyScalar(0.58);
-  group.add(label);
+  const scroll = standardMaterial(0xd4c49f, { roughness: 0.9 });
+  group.add(mesh(new THREE.BoxGeometry(1.05, 0.28, 0.5), couch, [-1.95, 0.24, -0.72]));
+  group.add(mesh(new THREE.BoxGeometry(0.16, 0.5, 0.5), couch, [-2.42, 0.42, -0.72]));
+  group.add(mesh(new THREE.BoxGeometry(0.92, 0.08, 0.44), wood, [-1.95, 0.08, -0.72]));
+  group.add(mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.58, 12), scroll, [0.78, 1.18, -0.21], [0, 0, Math.PI / 2]));
   return group;
 }
 
-function makeRoute() {
+function makeRouteMemory() {
   const group = new THREE.Group();
-  const terrain = standardMaterial(0x4c5149, { roughness: 1 });
-  const road = standardMaterial(0xc19a60, { roughness: 0.9, opacity: 0.92 });
-  group.add(mesh(new THREE.BoxGeometry(3.4, 0.12, 2), terrain, [0, 0.02, 0]));
-
+  const mapStone = standardMaterial(0x827563, { roughness: 1 });
+  const road = standardMaterial(0xc39961, { roughness: 0.9 });
+  const marker = standardMaterial(0x8e4939, { roughness: 0.82 });
+  group.add(mesh(new THREE.BoxGeometry(0.88, 0.05, 1.05), mapStone, [-2.05, 0.05, 0.78]));
   const curve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-1.25, 0.13, 0.55),
-    new THREE.Vector3(-0.45, 0.14, -0.18),
-    new THREE.Vector3(0.36, 0.14, 0.18),
-    new THREE.Vector3(1.28, 0.14, -0.48),
+    new THREE.Vector3(-2.35, 0.09, 1.04),
+    new THREE.Vector3(-2.12, 0.1, 0.7),
+    new THREE.Vector3(-1.95, 0.1, 0.88),
+    new THREE.Vector3(-1.72, 0.1, 0.5),
   ]);
-  group.add(mesh(new THREE.TubeGeometry(curve, 36, 0.055, 8, false), road));
-
-  const markerMaterial = standardMaterial(0xa64d38, { roughness: 0.72 });
-  [[-1.25, 0.55], [1.28, -0.48]].forEach(([x, z]) => {
-    group.add(mesh(new THREE.CylinderGeometry(0.1, 0.14, 0.65, 10), markerMaterial, [x, 0.44, z]));
+  group.add(mesh(new THREE.TubeGeometry(curve, 24, 0.025, 7, false), road));
+  [[-2.35, 1.04], [-1.72, 0.5]].forEach(([x, z]) => {
+    group.add(mesh(new THREE.CylinderGeometry(0.045, 0.06, 0.26, 8), marker, [x, 0.22, z]));
   });
-  const siscia = makeTextSprite("SISCIA");
-  siscia.position.set(-1.18, 1.04, 0.55);
-  siscia.scale.multiplyScalar(0.4);
-  group.add(siscia);
-  const andautonia = makeTextSprite("ANDAVTONIA");
-  andautonia.position.set(1.08, 1.03, -0.5);
-  andautonia.scale.multiplyScalar(0.46);
-  group.add(andautonia);
   return group;
 }
 
-function makeThermopolium() {
+function makeServingSet() {
   const group = new THREE.Group();
-  const plaster = standardMaterial(0x9d654c, { roughness: 0.96 });
-  const stone = standardMaterial(0xc0b49b, { roughness: 0.98 });
-  const darkStone = standardMaterial(0x5c554c, { roughness: 1 });
-
-  group.add(mesh(new THREE.BoxGeometry(3.25, 1.02, 0.76), plaster, [0, 0.57, 0.15]));
-  group.add(mesh(new THREE.BoxGeometry(3.42, 0.12, 0.92), stone, [0, 1.1, 0.15]));
-  group.add(mesh(new THREE.BoxGeometry(0.72, 1.02, 1.8), plaster, [-1.3, 0.57, -0.36]));
-  group.add(mesh(new THREE.BoxGeometry(0.84, 0.12, 1.94), stone, [-1.3, 1.1, -0.36]));
-  [-0.55, 0.35, 1.12].forEach((x, index) => {
-    group.add(mesh(new THREE.CylinderGeometry(0.22, 0.16, 0.28, 24), darkStone, [x, 1.08, 0.15]));
-    const amphora = makeAmphora(0.72 + index * 0.03, [0xa26243, 0x8a503d, 0xb4734e][index]);
-    amphora.position.set(x, 0.02, -0.82);
-    group.add(amphora);
+  const clay = standardMaterial(0xa96845, { roughness: 0.98, side: THREE.DoubleSide });
+  [0.62, 0.93].forEach((x, index) => {
+    group.add(mesh(new THREE.CylinderGeometry(0.16, 0.1, 0.09, 18, 1, true), clay, [x, 1.14, -0.18 - index * 0.04]));
+    group.add(mesh(new THREE.TorusGeometry(0.16, 0.015, 7, 22), clay, [x, 1.195, -0.18 - index * 0.04], [Math.PI / 2, 0, 0]));
   });
-  const sign = makeTextSprite("THERMOPOLIVM");
-  sign.position.set(0.35, 1.82, 0.1);
-  sign.scale.multiplyScalar(0.58);
-  group.add(sign);
+  const jug = makeAmphora(0.42, 0xb1714f);
+  jug.position.set(1.42, 1.09, -0.2);
+  group.add(jug);
   return group;
-}
-
-function makePlaceholderPerson() {
-  const group = new THREE.Group();
-  const cloth = standardMaterial(0x526b70, { roughness: 0.98 });
-  const skin = standardMaterial(0xb77b55, { roughness: 0.92 });
-  group.add(mesh(new THREE.CylinderGeometry(0.24, 0.38, 1.02, 12), cloth, [0, 0.84, 0]));
-  group.add(mesh(new THREE.SphereGeometry(0.18, 16, 12), skin, [0, 1.52, 0]));
-  const shoulder = mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.92, 8), cloth, [0, 1.12, 0], [0, 0, Math.PI / 2]);
-  group.add(shoulder);
-  return group;
-}
-
-function fitModelToHeight(model, targetHeight) {
-  const box = new THREE.Box3().setFromObject(model);
-  const size = box.getSize(new THREE.Vector3());
-  if (size.y > 0) model.scale.setScalar(targetHeight / size.y);
-  const fittedBox = new THREE.Box3().setFromObject(model);
-  model.position.y -= fittedBox.min.y;
 }
 
 function makeDioramaRoot() {
   const root = new THREE.Group();
   root.name = "EumachusDiorama";
-
-  const baseMaterial = standardMaterial(0x48443c, { roughness: 1 });
-  const rimMaterial = standardMaterial(0xa77a44, { metalness: 0.38, roughness: 0.62 });
-  root.add(mesh(new THREE.CylinderGeometry(3.2, 3.28, 0.2, 64), baseMaterial, [0, -0.1, 0]));
-  root.add(mesh(new THREE.TorusGeometry(3.17, 0.035, 10, 72), rimMaterial, [0, 0.01, 0], [Math.PI / 2, 0, 0]));
-
-  const columns = new THREE.Group();
-  [[-2.48, -1.58], [2.48, -1.58]].forEach(([x, z]) => {
-    const column = makeColumn(1.55);
-    column.position.set(x, 0, z);
-    columns.add(column);
-  });
-  root.add(columns);
+  const architecture = makeThermopoliumArchitecture();
+  root.add(architecture);
 
   const stageGroups = {
-    name: makeNameToken(),
-    house: makeHorseHouse(),
+    name: makeNameTokens(),
+    house: makeHorseMemory(),
     fall: makeBrokenLinks(),
-    voice: makeTriclinium(),
-    siscia: makeRoute(),
-    thermopolium: makeThermopolium(),
+    voice: makeTricliniumMemory(),
+    siscia: makeRouteMemory(),
+    thermopolium: makeServingSet(),
   };
-
   Object.values(stageGroups).forEach((group) => {
     group.visible = false;
-    group.position.z = 0.2;
     root.add(group);
   });
 
-  const character = new THREE.Group();
-  character.name = "Eumachus";
-  const placeholder = makePlaceholderPerson();
-  character.add(placeholder);
+  const character = makeRomanEumachus();
   root.add(character);
-
-  return { root, stageGroups, character, placeholder };
+  return { root, architecture, stageGroups, character };
 }
 
 export class Diorama {
@@ -330,43 +360,42 @@ export class Diorama {
     });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.06;
+    this.renderer.toneMappingExposure = 1.04;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.xr.enabled = true;
     this.renderer.setPixelRatio(clampPixelRatio());
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0x11171a, 0.048);
+    this.scene.fog = new THREE.FogExp2(0x11171a, 0.042);
     this.scene.background = new THREE.Color(0x11171a);
-
-    this.camera = new THREE.PerspectiveCamera(38, 1, 0.01, 100);
-    this.camera.position.set(5.25, 3.45, 6.3);
+    this.camera = new THREE.PerspectiveCamera(39, 1, 0.01, 100);
+    this.camera.position.set(5.5, 3.4, 6.6);
 
     this.controls = new OrbitControls(this.camera, this.canvas);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.065;
-    this.controls.target.set(0, 0.78, 0);
-    this.controls.minDistance = 3.2;
-    this.controls.maxDistance = 10;
+    this.controls.target.set(0, 0.95, -0.3);
+    this.controls.minDistance = 4.5;
+    this.controls.maxDistance = 11;
     this.controls.maxPolarAngle = Math.PI * 0.49;
 
-    const hemi = new THREE.HemisphereLight(0xb9d2d3, 0x3e261b, 2.2);
+    const hemi = new THREE.HemisphereLight(0xc5d3cf, 0x3e261b, 2.35);
     this.scene.add(hemi);
-    const key = new THREE.DirectionalLight(0xffd79a, 3.6);
+    const key = new THREE.DirectionalLight(0xffd39a, 3.9);
     key.position.set(-4, 7, 5);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
     this.scene.add(key);
-    const edge = new THREE.PointLight(0x6ba1b2, 15, 9, 2);
+    const edge = new THREE.PointLight(0x6ba1b2, 13, 9, 2);
     edge.position.set(3.4, 2.2, -2.8);
     this.scene.add(edge);
 
     const built = makeDioramaRoot();
     this.root = built.root;
+    this.architecture = built.architecture;
     this.stageGroups = built.stageGroups;
     this.character = built.character;
-    this.placeholder = built.placeholder;
     this.scene.add(this.root);
     if (this.currentScene) this.setScene(this.currentScene);
 
@@ -394,42 +423,8 @@ export class Diorama {
         (await navigator.xr.isSessionSupported("immersive-ar").catch(() => false)),
     );
     this.callbacks.onARSupport?.(this.arSupported);
-
-    await this.loadCharacter();
     this.callbacks.onReady?.();
     return this;
-  }
-
-  async loadCharacter() {
-    const loader = new GLTFLoader();
-    const url =
-      "https://raw.githubusercontent.com/miljenka-prompt/Psefizma_AR/main/public/models/lumbarda/Greek_Male_Peasant.gltf";
-    try {
-      const gltf = await loader.loadAsync(url);
-      const model = gltf.scene;
-      model.name = "EumachusProvisionalModel";
-      fitModelToHeight(model, 1.75);
-      model.traverse((child) => {
-        if (!child.isMesh) return;
-        child.castShadow = true;
-        child.receiveShadow = true;
-        const materials = Array.isArray(child.material) ? child.material : [child.material];
-        child.material = materials.map((source) => {
-          const material = source.clone();
-          material.roughness = Math.max(material.roughness ?? 0.6, 0.82);
-          material.metalness = Math.min(material.metalness ?? 0, 0.08);
-          material.userData[MATERIAL_BASE_OPACITY] = material.opacity ?? 1;
-          return material;
-        });
-        if (child.material.length === 1) child.material = child.material[0];
-      });
-      this.placeholder.visible = false;
-      this.character.add(model);
-      this.model = model;
-      if (this.currentScene) this.setScene(this.currentScene);
-    } catch (error) {
-      console.warn("Provisional Eumachus model could not be loaded; using fallback figure.", error);
-    }
   }
 
   setScene(sceneData) {
@@ -445,21 +440,21 @@ export class Diorama {
     }
 
     const poses = {
-      name: { position: [1.35, 0, 0.25], rotation: -0.48 },
-      house: { position: [0.1, 0, -0.55], rotation: 0.08 },
-      fall: { position: [0.85, 0, -0.35], rotation: -0.42 },
-      voice: { position: [0, 0.08, 0.78], rotation: Math.PI },
-      siscia: { position: [0, 0.12, 0.2], rotation: 0.1 },
-      thermopolium: { position: [-1.12, 0, -0.75], rotation: 0.48 },
+      name: { position: [1.3, 0, 0.82], rotation: 0.42 },
+      house: { position: [1.36, 0, 0.84], rotation: 0.5 },
+      fall: { position: [1.22, 0, 0.82], rotation: 0.34 },
+      voice: { position: [1.32, 0, 0.84], rotation: 0.52 },
+      siscia: { position: [1.25, 0, 0.86], rotation: 0.36 },
+      thermopolium: { position: [1.38, 0, 0.84], rotation: 0.46 },
     };
     const pose = poses[sceneData.visual] ?? poses.name;
     this.character.position.set(...pose.position);
     this.character.userData.baseY = pose.position[1];
     this.character.rotation.y = pose.rotation;
-    markMaterialOpacity(this.character, Math.max(sceneData.opacity, 0.52));
+    markMaterialOpacity(this.character, Math.max(sceneData.opacity, 0.68));
 
-    this.root.rotation.y = -0.18;
-    this.root.scale.setScalar(this.arSession ? 0.27 : 1);
+    this.root.rotation.y = -0.12;
+    this.root.scale.setScalar(this.arSession ? 0.24 : 1);
   }
 
   async startAR() {
@@ -476,13 +471,12 @@ export class Diorama {
       this.scene.background = null;
       this.scene.fog = null;
       this.root.visible = false;
-      this.root.scale.setScalar(0.27);
+      this.root.scale.setScalar(0.24);
       document.body.classList.add("xr-active");
 
       session.addEventListener("end", () => this.endARState(), { once: true });
       session.addEventListener("select", () => this.placeAtReticle());
       await this.renderer.xr.setSession(session);
-
       const viewerSpace = await session.requestReferenceSpace("viewer");
       this.hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
       this.callbacks.onARState?.("finding");
@@ -510,7 +504,7 @@ export class Diorama {
     this.root.quaternion.identity();
     this.root.scale.setScalar(1);
     this.scene.background = new THREE.Color(0x11171a);
-    this.scene.fog = new THREE.FogExp2(0x11171a, 0.048);
+    this.scene.fog = new THREE.FogExp2(0x11171a, 0.042);
     this.controls.enabled = true;
     document.body.classList.remove("xr-active");
     this.callbacks.onARState?.("ended");
@@ -523,7 +517,7 @@ export class Diorama {
     this.root.visible = true;
     this.root.position.setFromMatrixPosition(this.reticle.matrix);
     this.root.quaternion.setFromRotationMatrix(this.reticle.matrix);
-    this.root.scale.setScalar(0.27);
+    this.root.scale.setScalar(0.24);
     this.arPlaced = true;
     this.callbacks.onARState?.("placed");
   }
@@ -535,8 +529,8 @@ export class Diorama {
       this.callbacks.onARState?.("finding");
       return;
     }
-    this.camera.position.set(5.25, 3.45, 6.3);
-    this.controls.target.set(0, 0.78, 0);
+    this.camera.position.set(5.5, 3.4, 6.6);
+    this.controls.target.set(0, 0.95, -0.3);
     this.controls.update();
   }
 
