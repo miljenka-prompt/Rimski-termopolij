@@ -10,14 +10,7 @@
     />
     <title>Eumachus — Andautonija WebAR</title>
     <link rel="stylesheet" href="./styles.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
-          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
-        }
-      }
-    </script>
+    <link rel="modulepreload" href="./vendor/three/three.module.min.js" />
   </head>
   <body>
     <a class="skip-link" href="#narrative">Preskoči na priču</a>
@@ -198,6 +191,48 @@
     </div>
 
     <noscript>Za interaktivni prikaz potrebno je omogućiti JavaScript.</noscript>
-    <script type="module" src="./src/app.js?v=3"></script>
+    <script>
+      (() => {
+        const loadingScreen = document.querySelector("#loadingScreen");
+        const instruction = document.querySelector("#arInstruction");
+        let timer;
+        let completed = false;
+
+        const showFailure = () => {
+          if (completed) return;
+          window.clearTimeout(timer);
+          loadingScreen.classList.add("is-hidden");
+          instruction.dataset.loadingFallback = "true";
+          instruction.textContent =
+            "3D prikaz se nije učitao. Tekstualna priča ostaje dostupna; pokušajte osvježiti stranicu.";
+          instruction.classList.add("is-visible");
+        };
+
+        window.EumachusLoading = {
+          complete() {
+            completed = true;
+            window.clearTimeout(timer);
+            loadingScreen.classList.add("is-hidden");
+            if (instruction.dataset.loadingFallback === "true") {
+              delete instruction.dataset.loadingFallback;
+              instruction.textContent = "";
+              instruction.classList.remove("is-visible");
+            }
+          },
+          fail: showFailure,
+        };
+
+        timer = window.setTimeout(showFailure, 8000);
+        window.addEventListener(
+          "error",
+          (event) => {
+            if (event.target?.tagName === "SCRIPT") showFailure();
+          },
+          true,
+        );
+        window.addEventListener("unhandledrejection", showFailure, { once: true });
+      })();
+    </script>
+    <script type="module" src="./src/app.js?v=4"></script>
   </body>
 </html>

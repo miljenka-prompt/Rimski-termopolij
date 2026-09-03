@@ -1,6 +1,6 @@
-import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import * as THREE from "../vendor/three/three.module.min.js";
+import { OrbitControls } from "../vendor/three/addons/controls/OrbitControls.js";
+import { RoundedBoxGeometry } from "../vendor/three/addons/geometries/RoundedBoxGeometry.js";
 
 const MATERIAL_BASE_OPACITY = "baseOpacity";
 const UP = new THREE.Vector3(0, 1, 0);
@@ -444,14 +444,26 @@ export class Diorama {
     }
     this.resize();
     this.renderer.setAnimationLoop((time, frame) => this.render(time, frame));
-
-    this.arSupported = Boolean(
-      navigator.xr &&
-        typeof navigator.xr.isSessionSupported === "function" &&
-        (await navigator.xr.isSessionSupported("immersive-ar").catch(() => false)),
-    );
-    this.callbacks.onARSupport?.(this.arSupported);
+    this.renderer.render(this.scene, this.camera);
     this.callbacks.onReady?.();
+
+    this.arSupported = false;
+    this.callbacks.onARSupport?.(false);
+    const xr = navigator.xr;
+    if (xr && typeof xr.isSessionSupported === "function") {
+      let timeoutId;
+      const timeout = new Promise((resolve) => {
+        timeoutId = window.setTimeout(() => resolve(false), 1800);
+      });
+      const supportCheck = Promise.resolve()
+        .then(() => xr.isSessionSupported("immersive-ar"))
+        .catch(() => false);
+      void Promise.race([supportCheck, timeout]).then((supported) => {
+        window.clearTimeout(timeoutId);
+        this.arSupported = Boolean(supported);
+        this.callbacks.onARSupport?.(this.arSupported);
+      });
+    }
     return this;
   }
 

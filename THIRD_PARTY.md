@@ -7,7 +7,8 @@ The preview no longer loads the provisional Quaternius fantasy character.
 
 - Source: https://threejs.org/
 - License: MIT
-- Delivery: ES modules loaded from jsDelivr.
+- Version: 0.169.0
+- Delivery: vendored ES modules served with the preview, without a runtime CDN dependency.
 
 ## A-Frame and AR.js
 

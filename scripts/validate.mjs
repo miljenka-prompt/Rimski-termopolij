@@ -13,6 +13,15 @@ const javascriptFiles = [
 
 const failures = [];
 
+for (const localDependency of [
+  "vendor/three/three.module.min.js",
+  "vendor/three/addons/controls/OrbitControls.js",
+  "vendor/three/addons/geometries/RoundedBoxGeometry.js",
+  "vendor/three/LICENSE",
+]) {
+  if (!existsSync(join(root, localDependency))) failures.push(`${localDependency}: missing local dependency`);
+}
+
 for (const file of javascriptFiles) {
   const result = spawnSync(process.execPath, ["--check", join(root, file)], {
     encoding: "utf8",
@@ -44,6 +53,14 @@ for (const requiredFeature of [
   if (!dioramaSource.includes(requiredFeature)) {
     failures.push("src/diorama.js: " + requiredFeature + " is missing");
   }
+}
+
+const entryHtml = readFileSync(join(root, "index.html"), "utf8");
+if (entryHtml.includes("cdn.jsdelivr.net")) {
+  failures.push("index.html: runtime CDN dependency remains");
+}
+if (!entryHtml.includes("EumachusLoading") || !entryHtml.includes("setTimeout(showFailure, 8000)")) {
+  failures.push("index.html: loading fail-safe is missing");
 }
 for (const removedFeature of ["makeTextSprite", "GLTFLoader", "hairCap", "beard"]) {
   if (dioramaSource.includes(removedFeature)) {
