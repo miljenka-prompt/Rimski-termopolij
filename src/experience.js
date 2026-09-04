@@ -1,4 +1,4 @@
-import { CONTENT, EVIDENCE_COLORS } from "./content.js?v=6";
+import { CONTENT, EVIDENCE_COLORS } from "./content.js?v=7";
 
 class AmbientSound {
   constructor() {
@@ -287,12 +287,16 @@ export class Experience {
       await this.diorama.stopAR();
       return;
     }
-    if (!this.diorama.arSupported && this.needsExternalARBrowser()) {
-      this.openARInChrome();
+    if (this.diorama.arSupportResolved && !this.diorama.arSupported && this.needsNativeARViewer()) {
+      this.openNativeARViewer();
       return;
     }
     if (!navigator.xr || typeof navigator.xr.requestSession !== "function") {
-      this.showInstruction(this.copy.ui.unsupportedAR);
+      if (this.needsNativeARViewer()) {
+        this.openNativeARViewer();
+      } else {
+        this.showInstruction(this.copy.ui.unsupportedAR);
+      }
       return;
     }
     if (this.viewpoint === "chronovisor") {
@@ -304,31 +308,36 @@ export class Experience {
   }
 
   handleARSupport(supported) {
-    const externalHandoff = !supported && this.needsExternalARBrowser();
+    const nativeFallback = !supported && this.needsNativeARViewer();
     this.elements.enterAR.classList.toggle("is-fallback", !supported);
-    this.elements.enterAR.querySelector("span").textContent = externalHandoff
-      ? this.copy.ui.openARBrowser
+    this.elements.enterAR.querySelector("span").textContent = nativeFallback
+      ? this.copy.ui.placeInSpace
       : this.copy.ui.placeInSpace;
     this.elements.enterAR.title = supported
       ? ""
-      : externalHandoff
-        ? this.copy.ui.openingARBrowser
+      : nativeFallback
+        ? "Otvori Android AR prikaz"
         : this.copy.ui.unsupportedAR;
   }
 
-  needsExternalARBrowser() {
-    const parameters = new URLSearchParams(window.location.search);
-    return /Android/i.test(navigator.userAgent) && !parameters.has("external-ar");
+  needsNativeARViewer() {
+    return /Android/i.test(navigator.userAgent);
   }
 
-  openARInChrome() {
-    const url = new URL(window.location.href);
-    url.searchParams.set("external-ar", "1");
-    const target = `${url.host}${url.pathname}${url.search}${url.hash}`;
+  openNativeARViewer() {
+    const modelUrl = new URL("./assets/models/eumachus-human.glb", window.location.href).href;
+    const fallbackUrl = window.location.href;
+    const params = new URLSearchParams({
+      file: modelUrl,
+      mode: "ar_preferred",
+      title: "Eumachus",
+      resizable: "true",
+    });
     const intent =
-      `intent://${target}#Intent;scheme=https;package=com.android.chrome;` +
-      `S.browser_fallback_url=${encodeURIComponent(url.href)};end`;
-    this.showInstruction(this.copy.ui.openingARBrowser, true);
+      `intent://arvr.google.com/scene-viewer/1.0?${params.toString()}#Intent;` +
+      "scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;" +
+      `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end;`;
+    this.showInstruction("Otvaram Android AR prikaz…", true);
     window.location.href = intent;
   }
 
