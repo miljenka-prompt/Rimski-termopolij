@@ -364,12 +364,23 @@ a:focus-visible {
   opacity: 0.5;
 }
 
-.sound-off-icon,
-.sound-enabled .sound-on-icon {
+.sound-off-icon {
   display: none;
 }
 
+.sound-enabled .sound-on-icon {
+  display: block;
+}
+
 .sound-enabled .sound-off-icon {
+  display: none;
+}
+
+:not(.sound-enabled) > .sound-on-icon {
+  display: none;
+}
+
+:not(.sound-enabled) > .sound-off-icon {
   display: block;
 }
 
