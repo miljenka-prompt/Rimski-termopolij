@@ -1,9 +1,67 @@
 import * as THREE from "../vendor/three/three.module.min.js";
 import { OrbitControls } from "../vendor/three/addons/controls/OrbitControls.js";
-import { RoundedBoxGeometry } from "../vendor/three/addons/geometries/RoundedBoxGeometry.js";
+import { GLTFLoader } from "../vendor/three/addons/loaders/GLTFLoader.js";
 
 const MATERIAL_BASE_OPACITY = "baseOpacity";
 const UP = new THREE.Vector3(0, 1, 0);
+const EUMACHUS_MODEL_PATH = "./assets/models/eumachus-human.glb";
+
+const EUMACHUS_POSES = {
+  name: {
+    chest: [0, 0.16, -0.02],
+    leftArm: [-0.08, 0, 0.16],
+    leftForeArm: [-0.24, 0, 0],
+    rightArm: [-1.28, 0.06, -0.42],
+    rightForeArm: [-0.42, 0, 0],
+    rightHand: [-0.12, 0, -0.08],
+    head: [0.02, -0.22, -0.02],
+  },
+  house: {
+    chest: [-0.02, 0.09, -0.02],
+    leftArm: [-0.18, -0.08, 0.24],
+    leftForeArm: [-0.58, 0, 0],
+    rightArm: [-0.76, 0.18, -0.34],
+    rightForeArm: [-0.92, 0, 0],
+    rightHand: [-0.12, 0, -0.12],
+    head: [0.03, -0.12, 0],
+  },
+  fall: {
+    chest: [0.06, 0.12, 0],
+    leftArm: [-0.5, -0.12, 0.28],
+    leftForeArm: [-0.78, 0, 0],
+    rightArm: [-0.82, 0.12, -0.32],
+    rightForeArm: [-1.02, 0, 0],
+    rightHand: [-0.18, 0, -0.1],
+    head: [0.1, -0.14, 0.02],
+  },
+  voice: {
+    chest: [-0.04, 0.2, -0.03],
+    leftArm: [-0.72, -0.06, 0.34],
+    leftForeArm: [-0.88, 0, 0],
+    rightArm: [-1.2, 0.16, -0.5],
+    rightForeArm: [-0.7, 0, 0],
+    rightHand: [-0.18, 0, -0.16],
+    head: [-0.03, -0.28, -0.02],
+  },
+  siscia: {
+    chest: [0, 0.08, -0.02],
+    leftArm: [-0.12, 0, 0.17],
+    leftForeArm: [-0.32, 0, 0],
+    rightArm: [-0.94, 0.08, -0.38],
+    rightForeArm: [-0.82, 0, 0],
+    rightHand: [-0.12, 0, -0.1],
+    head: [0.01, -0.1, -0.02],
+  },
+  thermopolium: {
+    chest: [-0.02, 0.18, -0.02],
+    leftArm: [-0.42, -0.05, 0.3],
+    leftForeArm: [-0.72, 0, 0],
+    rightArm: [-1.34, 0.08, -0.42],
+    rightForeArm: [-0.48, 0, 0],
+    rightHand: [-0.14, 0, -0.12],
+    head: [0, -0.24, -0.02],
+  },
+};
 
 function clampPixelRatio() {
   return Math.min(window.devicePixelRatio || 1, 2);
@@ -44,33 +102,6 @@ function mesh(geometry, material, position = [0, 0, 0], rotation = [0, 0, 0]) {
   object.rotation.set(...rotation);
   object.castShadow = true;
   object.receiveShadow = true;
-  return object;
-}
-
-function cylinderBetween(start, end, radius, material, radialSegments = 10) {
-  const startPoint = new THREE.Vector3(...start);
-  const endPoint = new THREE.Vector3(...end);
-  const direction = endPoint.clone().sub(startPoint);
-  const object = mesh(
-    new THREE.CylinderGeometry(radius, radius, direction.length(), radialSegments),
-    material,
-  );
-  object.position.copy(startPoint).add(endPoint).multiplyScalar(0.5);
-  object.quaternion.setFromUnitVectors(UP, direction.normalize());
-  return object;
-}
-
-function capsuleBetween(start, end, radius, material, capSegments = 5, radialSegments = 12) {
-  const startPoint = new THREE.Vector3(...start);
-  const endPoint = new THREE.Vector3(...end);
-  const direction = endPoint.clone().sub(startPoint);
-  const straightLength = Math.max(direction.length() - radius * 2, 0.001);
-  const object = mesh(
-    new THREE.CapsuleGeometry(radius, straightLength, capSegments, radialSegments),
-    material,
-  );
-  object.position.copy(startPoint).add(endPoint).multiplyScalar(0.5);
-  object.quaternion.setFromUnitVectors(UP, direction.normalize());
   return object;
 }
 
@@ -181,83 +212,161 @@ function makeThermopoliumArchitecture() {
   return group;
 }
 
-function makeRomanEumachus() {
+function makeTunicGeometry() {
+  const segments = 36;
+  const rings = [
+    { y: 1.45, x: 0.11, z: 0.105 },
+    { y: 1.39, x: 0.2, z: 0.13 },
+    { y: 1.34, x: 0.36, z: 0.185 },
+    { y: 1.22, x: 0.31, z: 0.175 },
+    { y: 1.04, x: 0.275, z: 0.165 },
+    { y: 0.84, x: 0.305, z: 0.18 },
+    { y: 0.66, x: 0.35, z: 0.195 },
+  ];
+  const positions = [];
+  const indices = [];
+
+  rings.forEach((ring, ringIndex) => {
+    for (let segment = 0; segment <= segments; segment += 1) {
+      const angle = (segment / segments) * Math.PI * 2;
+      const fold = 1 + Math.sin(angle * 5 + ringIndex * 0.55) * 0.018;
+      positions.push(
+        Math.cos(angle) * ring.x * fold,
+        ring.y + Math.sin(angle * 3 + ringIndex) * 0.003,
+        Math.sin(angle) * ring.z * fold,
+      );
+    }
+  });
+
+  for (let ring = 0; ring < rings.length - 1; ring += 1) {
+    for (let segment = 0; segment < segments; segment += 1) {
+      const current = ring * (segments + 1) + segment;
+      const next = current + segments + 1;
+      indices.push(current, next, current + 1, next, next + 1, current + 1);
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function attachTunicSleeve(upperArm, foreArm, material) {
+  const direction = foreArm.position.clone().normalize();
+  const length = 0.18;
+  const sleeve = mesh(
+    new THREE.CylinderGeometry(0.09, 0.135, length, 20, 2, true),
+    material,
+  );
+  sleeve.name = "TunicSleeve";
+  sleeve.position.copy(direction).multiplyScalar(length * 0.48);
+  sleeve.quaternion.setFromUnitVectors(UP, direction);
+  upperArm.add(sleeve);
+}
+
+function makeRomanTunic(bones) {
   const group = new THREE.Group();
-  group.name = "EumachusRomanFigure";
+  group.name = "SimpleRomanTunic";
+  const cloth = standardMaterial(0xb9aa87, {
+    roughness: 1,
+    side: THREE.DoubleSide,
+  });
+  const clavus = standardMaterial(0x70483c, {
+    roughness: 1,
+    side: THREE.DoubleSide,
+  });
+  const cord = standardMaterial(0x4c3328, { roughness: 0.98 });
 
-  const skin = standardMaterial(0xb67958, { roughness: 0.96 });
-  const tunic = standardMaterial(0xc7b38a, { roughness: 1 });
-  const clavus = standardMaterial(0x765044, { roughness: 0.98 });
-  const leather = standardMaterial(0x513325, { roughness: 0.9 });
-  const bronze = standardMaterial(0xa97843, { metalness: 0.28, roughness: 0.7 });
-  const features = standardMaterial(0x4b3028, { roughness: 1 });
+  const shell = mesh(makeTunicGeometry(), cloth);
+  shell.name = "WoolTunicShell";
+  group.add(shell);
 
-  const chest = mesh(new RoundedBoxGeometry(0.58, 0.44, 0.28, 5, 0.065), tunic, [0, 1.43, 0]);
-  chest.scale.x = 1.05;
-  group.add(chest);
+  [-0.072, 0.072].forEach((x) => {
+    const stripe = mesh(new THREE.PlaneGeometry(0.025, 0.64, 1, 5), clavus, [x, 1.03, 0.184]);
+    stripe.name = "NarrowClavus";
+    group.add(stripe);
+  });
 
-  const skirt = mesh(new THREE.CylinderGeometry(0.285, 0.35, 0.55, 18), tunic, [0, 1.06, 0]);
-  skirt.scale.set(1.03, 1, 0.54);
-  group.add(skirt);
-
-  const belt = mesh(new RoundedBoxGeometry(0.61, 0.06, 0.3, 4, 0.018), leather, [0, 1.265, 0]);
+  const belt = mesh(
+    new THREE.CylinderGeometry(0.282, 0.282, 0.032, 36, 1, true),
+    cord,
+    [0, 1.02, 0],
+  );
+  belt.scale.z = 0.62;
+  belt.name = "TunicCordBelt";
   group.add(belt);
-  group.add(mesh(new RoundedBoxGeometry(0.075, 0.065, 0.022, 3, 0.009), bronze, [0, 1.265, 0.163]));
-  [-0.09, 0.09].forEach((x) => {
-    group.add(mesh(new RoundedBoxGeometry(0.035, 0.64, 0.012, 3, 0.005), clavus, [x, 1.32, 0.174]));
-  });
 
-  const leftHip = [-0.12, 0.81, 0.01];
-  const leftAnkle = [-0.14, 0.18, 0.07];
-  const rightHip = [0.12, 0.81, -0.01];
-  const rightAnkle = [0.16, 0.18, -0.035];
-  group.add(capsuleBetween(leftHip, leftAnkle, 0.057, skin));
-  group.add(capsuleBetween(rightHip, rightAnkle, 0.057, skin));
-
-  const leftSandal = mesh(new RoundedBoxGeometry(0.15, 0.065, 0.28, 5, 0.028), leather, [-0.14, 0.09, 0.13], [0, -0.035, 0]);
-  const rightSandal = mesh(new RoundedBoxGeometry(0.15, 0.065, 0.28, 5, 0.028), leather, [0.16, 0.09, 0.035], [0, 0.05, 0]);
-  group.add(leftSandal, rightSandal);
-  [
-    [-0.2, 0.13, 0.07, -0.08, 0.13, 0.17],
-    [0.1, 0.13, -0.03, 0.22, 0.13, 0.07],
-  ].forEach(([x1, y1, z1, x2, y2, z2]) => {
-    group.add(cylinderBetween([x1, y1, z1], [x2, y2, z2], 0.009, leather, 6));
-  });
-
-  const leftShoulder = [-0.31, 1.54, 0];
-  const leftSleeve = [-0.36, 1.39, 0.025];
-  const leftElbow = [-0.4, 1.18, 0.075];
-  const leftWrist = [-0.34, 0.995, 0.145];
-  const rightShoulder = [0.31, 1.54, 0];
-  const rightSleeve = [0.37, 1.39, 0.035];
-  const rightElbow = [0.43, 1.22, 0.115];
-  const rightWrist = [0.24, 1.13, 0.305];
-
-  group.add(capsuleBetween(leftShoulder, leftSleeve, 0.085, tunic));
-  group.add(capsuleBetween(leftSleeve, leftElbow, 0.053, skin));
-  group.add(capsuleBetween(leftElbow, leftWrist, 0.048, skin));
-  group.add(capsuleBetween(leftWrist, [-0.335, 0.92, 0.17], 0.044, skin, 4, 10));
-  group.add(capsuleBetween(rightShoulder, rightSleeve, 0.085, tunic));
-  group.add(capsuleBetween(rightSleeve, rightElbow, 0.053, skin));
-  group.add(capsuleBetween(rightElbow, rightWrist, 0.048, skin));
-  group.add(capsuleBetween(rightWrist, [0.16, 1.12, 0.37], 0.044, skin, 4, 10));
-
-  group.add(mesh(new THREE.CylinderGeometry(0.082, 0.09, 0.13, 12), skin, [0, 1.69, 0]));
-  const head = mesh(new THREE.SphereGeometry(0.17, 24, 18), skin, [0, 1.89, 0]);
-  head.scale.set(0.79, 1.06, 0.83);
-  group.add(head);
-  [-0.145, 0.145].forEach((x) => {
-    const ear = mesh(new THREE.SphereGeometry(0.035, 12, 8), skin, [x, 1.89, 0]);
-    ear.scale.set(0.42, 0.72, 0.36);
-    group.add(ear);
-  });
-  group.add(mesh(new THREE.ConeGeometry(0.026, 0.075, 8), skin, [0, 1.89, 0.145], [Math.PI / 2, 0, 0]));
-  [-0.051, 0.051].forEach((x) => {
-    group.add(mesh(new THREE.SphereGeometry(0.009, 8, 6), features, [x, 1.925, 0.139]));
-  });
-  group.add(mesh(new RoundedBoxGeometry(0.052, 0.007, 0.008, 2, 0.003), features, [0, 1.82, 0.143]));
-  group.scale.setScalar(0.92);
+  attachTunicSleeve(bones.leftArm, bones.leftForeArm, cloth);
+  attachTunicSleeve(bones.rightArm, bones.rightForeArm, cloth);
   return group;
+}
+
+function collectEumachusBones(model) {
+  const boneNames = {
+    chest: "mixamorigSpine2",
+    leftArm: "mixamorigLeftArm",
+    leftForeArm: "mixamorigLeftForeArm",
+    leftHand: "mixamorigLeftHand",
+    rightArm: "mixamorigRightArm",
+    rightForeArm: "mixamorigRightForeArm",
+    rightHand: "mixamorigRightHand",
+    head: "mixamorigHead",
+  };
+  const bones = Object.fromEntries(
+    Object.entries(boneNames).map(([key, name]) => [key, model.getObjectByName(name)]),
+  );
+  const missing = Object.entries(bones).filter(([, bone]) => !bone).map(([key]) => key);
+  if (missing.length) throw new Error(`Eumachus rig is missing: ${missing.join(", ")}`);
+  return bones;
+}
+
+function applyEumachusPose(figure, visual = "name") {
+  const bones = figure.userData.bones;
+  if (!bones) return;
+  const pose = EUMACHUS_POSES[visual] ?? EUMACHUS_POSES.name;
+  for (const [boneName, rotation] of Object.entries(pose)) {
+    bones[boneName]?.rotation.set(...rotation, "XYZ");
+  }
+  figure.userData.gestureBase = {
+    rightArmX: bones.rightArm.rotation.x,
+    rightForeArmX: bones.rightForeArm.rotation.x,
+    rightHandZ: bones.rightHand.rotation.z,
+    headY: bones.head.rotation.y,
+  };
+}
+
+async function loadRomanEumachus() {
+  const gltf = await new GLTFLoader().loadAsync(EUMACHUS_MODEL_PATH);
+  const human = gltf.scene;
+  human.name = "AnatomicalHumanMesh";
+  human.traverse((child) => {
+    if (!child.isMesh) return;
+    child.castShadow = true;
+    child.receiveShadow = true;
+    child.frustumCulled = false;
+    const materials = Array.isArray(child.material) ? child.material : [child.material];
+    materials.forEach((material) => {
+      material.userData[MATERIAL_BASE_OPACITY] = material.opacity ?? 1;
+      if (material.name === "Parametric_Body") {
+        material.color.setHex(0x9f684f);
+        material.roughness = 0.96;
+      }
+      if (material.name === "Parametric_Eyes") material.color.setHex(0x30231e);
+      material.needsUpdate = true;
+    });
+  });
+
+  const figure = new THREE.Group();
+  figure.name = "EumachusHumanFigure";
+  figure.add(human);
+  const bones = collectEumachusBones(human);
+  figure.userData.bones = bones;
+  figure.add(makeRomanTunic(bones));
+  figure.scale.setScalar(0.94);
+  applyEumachusPose(figure, "name");
+  return figure;
 }
 
 function makeNameTokens() {
@@ -362,9 +471,7 @@ function makeDioramaRoot() {
     root.add(group);
   });
 
-  const character = makeRomanEumachus();
-  root.add(character);
-  return { root, architecture, stageGroups, character };
+  return { root, architecture, stageGroups };
 }
 
 export class Diorama {
@@ -423,8 +530,9 @@ export class Diorama {
     this.root = built.root;
     this.architecture = built.architecture;
     this.stageGroups = built.stageGroups;
-    this.character = built.character;
     this.scene.add(this.root);
+    this.character = await loadRomanEumachus();
+    this.root.add(this.character);
     if (this.currentScene) this.setScene(this.currentScene);
 
     this.reticle = mesh(
@@ -479,18 +587,18 @@ export class Diorama {
       markMaterialOpacity(active, sceneData.opacity);
     }
 
-    const poses = {
-      name: { position: [1.3, 0, 0.82], rotation: 0.42 },
-      house: { position: [1.36, 0, 0.84], rotation: 0.5 },
-      fall: { position: [1.22, 0, 0.82], rotation: 0.34 },
-      voice: { position: [1.32, 0, 0.84], rotation: 0.52 },
-      siscia: { position: [1.25, 0, 0.86], rotation: 0.36 },
-      thermopolium: { position: [1.38, 0, 0.84], rotation: 0.46 },
+    const placements = {
+      name: { position: [0.84, 0, -1.16], rotation: 0.08 },
+      house: { position: [0.88, 0, -1.17], rotation: 0.04 },
+      fall: { position: [0.78, 0, -1.15], rotation: 0.12 },
+      voice: { position: [0.86, 0, -1.16], rotation: 0.02 },
+      siscia: { position: [0.8, 0, -1.16], rotation: 0.1 },
+      thermopolium: { position: [0.9, 0, -1.17], rotation: 0.04 },
     };
-    const pose = poses[sceneData.visual] ?? poses.name;
-    this.character.position.set(...pose.position);
-    this.character.userData.baseY = pose.position[1];
-    this.character.rotation.y = pose.rotation;
+    const placement = placements[sceneData.visual] ?? placements.name;
+    applyEumachusPose(this.character, sceneData.visual);
+    this.character.position.set(...placement.position);
+    this.character.rotation.y = placement.rotation;
     markMaterialOpacity(this.character, Math.max(sceneData.opacity, 0.68));
 
     this.root.rotation.y = -0.12;
@@ -589,8 +697,15 @@ export class Diorama {
     const elapsed = this.clock.getElapsedTime();
     if (!this.arSession) {
       this.controls.update();
-      this.character.position.y =
-        (this.character.userData.baseY ?? 0) + Math.sin(elapsed * 1.2) * 0.006;
+      const bones = this.character?.userData.bones;
+      const base = this.character?.userData.gestureBase;
+      if (bones && base) {
+        const gesture = Math.sin(elapsed * 1.1);
+        bones.rightArm.rotation.x = base.rightArmX + gesture * 0.035;
+        bones.rightForeArm.rotation.x = base.rightForeArmX + gesture * 0.055;
+        bones.rightHand.rotation.z = base.rightHandZ + Math.sin(elapsed * 1.1 + 0.7) * 0.045;
+        bones.head.rotation.y = base.headY + Math.sin(elapsed * 0.62) * 0.024;
+      }
     } else if (frame && this.hitTestSource) {
       const referenceSpace = this.renderer.xr.getReferenceSpace();
       const hit = frame.getHitTestResults(this.hitTestSource)[0];

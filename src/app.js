@@ -1,5 +1,5 @@
 import { Chronovisor } from "./chronovisor.js";
-import { Diorama } from "./diorama.js?v=4";
+import { Diorama } from "./diorama.js?v=5";
 import { Experience } from "./experience.js";
 
 const loadingScreen = document.querySelector("#loadingScreen");

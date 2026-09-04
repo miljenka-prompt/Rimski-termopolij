@@ -16,8 +16,10 @@ const failures = [];
 for (const localDependency of [
   "vendor/three/three.module.min.js",
   "vendor/three/addons/controls/OrbitControls.js",
-  "vendor/three/addons/geometries/RoundedBoxGeometry.js",
+  "vendor/three/addons/loaders/GLTFLoader.js",
+  "vendor/three/addons/utils/BufferGeometryUtils.js",
   "vendor/three/LICENSE",
+  "assets/models/eumachus-human.glb",
 ]) {
   if (!existsSync(join(root, localDependency))) failures.push(`${localDependency}: missing local dependency`);
 }
@@ -46,9 +48,10 @@ for (const htmlFile of ["index.html", "legacy/index.html"]) {
 const dioramaSource = readFileSync(join(root, "src/diorama.js"), "utf8");
 for (const requiredFeature of [
   "makeThermopoliumArchitecture",
-  "makeRomanEumachus",
-  "THREE.CapsuleGeometry",
-  "RoundedBoxGeometry",
+  "loadRomanEumachus",
+  "EumachusHumanFigure",
+  "SimpleRomanTunic",
+  "mixamorigRightArm",
 ]) {
   if (!dioramaSource.includes(requiredFeature)) {
     failures.push("src/diorama.js: " + requiredFeature + " is missing");
@@ -62,10 +65,15 @@ if (entryHtml.includes("cdn.jsdelivr.net")) {
 if (!entryHtml.includes("EumachusLoading") || !entryHtml.includes("setTimeout(showFailure, 8000)")) {
   failures.push("index.html: loading fail-safe is missing");
 }
-for (const removedFeature of ["makeTextSprite", "GLTFLoader", "hairCap", "beard"]) {
+for (const removedFeature of ["makeTextSprite", "makeRomanEumachus", "THREE.CapsuleGeometry", "RoundedBoxGeometry", "hairCap", "beard"]) {
   if (dioramaSource.includes(removedFeature)) {
     failures.push("src/diorama.js: obsolete " + removedFeature + " remains");
   }
+}
+
+const model = readFileSync(join(root, "assets/models/eumachus-human.glb"));
+if (model.length < 500_000 || model.subarray(0, 4).toString("ascii") !== "glTF") {
+  failures.push("assets/models/eumachus-human.glb: invalid or unexpectedly small GLB");
 }
 
 if (failures.length) {
@@ -73,4 +81,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Validated ${javascriptFiles.length} modules, 2 routes, the thermopolium and the Roman figure.`);
+console.log(`Validated ${javascriptFiles.length} modules, 2 routes, the thermopolium and the anatomical Roman figure.`);
