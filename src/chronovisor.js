@@ -2,7 +2,21 @@ export class Chronovisor {
   constructor(container, video) {
     this.container = container;
     this.video = video;
+    this.retry = container.querySelector("#chronovisorRetry");
     this.active = false;
+    this.retry?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      void this.play();
+    });
+    this.video.addEventListener("playing", () => {
+      if (this.retry) this.retry.hidden = true;
+      this.container.classList.remove("is-waiting");
+    });
+    this.video.addEventListener("waiting", () => this.container.classList.add("is-waiting"));
+    this.video.addEventListener("error", () => {
+      this.container.classList.remove("is-waiting");
+      if (this.retry) this.retry.hidden = false;
+    });
   }
 
   async show(title) {
@@ -11,10 +25,16 @@ export class Chronovisor {
     const titleElement = this.container.querySelector("#chronovisorTitle");
     if (titleElement) titleElement.textContent = title;
     this.video.muted = true;
+    await this.play();
+  }
+
+  async play() {
+    this.container.classList.add("is-waiting");
     try {
       await this.video.play();
     } catch {
-      // The static frame remains a valid fallback until the visitor interacts.
+      this.container.classList.remove("is-waiting");
+      if (this.retry) this.retry.hidden = false;
     }
   }
 
@@ -23,6 +43,8 @@ export class Chronovisor {
     this.video.pause();
     this.video.muted = true;
     this.container.hidden = true;
+    this.container.classList.remove("is-waiting");
+    if (this.retry) this.retry.hidden = true;
   }
 
   setSound(enabled) {

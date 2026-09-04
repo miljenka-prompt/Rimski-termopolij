@@ -424,6 +424,50 @@ a:focus-visible {
   pointer-events: none;
 }
 
+.chronovisor::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 4;
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(255, 255, 255, 0.24);
+  border-top-color: var(--bronze-bright);
+  border-radius: 50%;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.chronovisor.is-waiting::before {
+  opacity: 1;
+  animation: chronovisor-spin 850ms linear infinite;
+}
+
+.chronovisor-retry {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 5;
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border-color: rgba(224, 186, 120, 0.62);
+  border-radius: 999px;
+  color: #20160b;
+  background: var(--bronze-bright);
+  font-size: 0.88rem;
+  font-weight: 780;
+  transform: translate(-50%, -50%);
+}
+
+.chronovisor-retry[hidden] {
+  display: none;
+}
+
 .chronovisor-scan {
   position: absolute;
   top: -10%;
@@ -802,6 +846,10 @@ body.xr-active #enterAR {
   to { transform: translateY(700%); }
 }
 
+@keyframes chronovisor-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 @keyframes breathe {
   50% { box-shadow: 0 0 0 10px rgba(224, 186, 120, 0.06); }
 }
@@ -911,14 +959,39 @@ body.xr-active #enterAR {
     left: 10px;
   }
 
-  .control-button:nth-child(2) span {
-    display: none;
+  .stage-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 46px 46px;
   }
 
-  .control-button:nth-child(2) {
-    width: 46px;
-    flex: 0 0 46px;
-    padding: 0;
+  #enterAR {
+    width: 100%;
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  #toggleView {
+    width: 100%;
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  #toggleSound {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  #resetView {
+    grid-column: 3;
+    grid-row: 2;
+  }
+
+  .ar-instruction {
+    bottom: 126px;
+  }
+
+  .chronovisor-caption {
+    bottom: 126px;
   }
 
   .scene-body {

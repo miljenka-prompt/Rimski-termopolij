@@ -483,6 +483,7 @@ export class Diorama {
     this.hitTestSource = null;
     this.arPlaced = false;
     this.arSupported = false;
+    this.arSupportResolved = false;
     this.currentScene = null;
   }
 
@@ -555,22 +556,20 @@ export class Diorama {
     this.renderer.render(this.scene, this.camera);
     this.callbacks.onReady?.();
 
-    this.arSupported = false;
-    this.callbacks.onARSupport?.(false);
     const xr = navigator.xr;
     if (xr && typeof xr.isSessionSupported === "function") {
-      let timeoutId;
-      const timeout = new Promise((resolve) => {
-        timeoutId = window.setTimeout(() => resolve(false), 1800);
-      });
-      const supportCheck = Promise.resolve()
+      void Promise.resolve()
         .then(() => xr.isSessionSupported("immersive-ar"))
-        .catch(() => false);
-      void Promise.race([supportCheck, timeout]).then((supported) => {
-        window.clearTimeout(timeoutId);
-        this.arSupported = Boolean(supported);
-        this.callbacks.onARSupport?.(this.arSupported);
-      });
+        .catch(() => false)
+        .then((supported) => {
+          this.arSupportResolved = true;
+          this.arSupported = Boolean(supported);
+          this.callbacks.onARSupport?.(this.arSupported);
+        });
+    } else {
+      this.arSupportResolved = true;
+      this.arSupported = false;
+      this.callbacks.onARSupport?.(false);
     }
     return this;
   }
@@ -606,7 +605,7 @@ export class Diorama {
   }
 
   async startAR() {
-    if (!this.arSupported || !navigator.xr) return false;
+    if (!navigator.xr || typeof navigator.xr.requestSession !== "function") return false;
     try {
       const session = await navigator.xr.requestSession("immersive-ar", {
         requiredFeatures: ["hit-test"],
@@ -614,6 +613,7 @@ export class Diorama {
         domOverlay: { root: document.body },
       });
       this.arSession = session;
+      this.arSupported = true;
       this.arPlaced = false;
       this.controls.enabled = false;
       this.scene.background = null;

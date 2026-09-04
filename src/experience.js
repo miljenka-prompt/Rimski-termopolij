@@ -1,4 +1,4 @@
-import { CONTENT, EVIDENCE_COLORS } from "./content.js";
+import { CONTENT, EVIDENCE_COLORS } from "./content.js?v=6";
 
 class AmbientSound {
   constructor() {
@@ -176,6 +176,7 @@ export class Experience {
     });
     this.renderStaticCopy();
     this.render();
+    if (this.diorama.arSupportResolved) this.handleARSupport(this.diorama.arSupported);
   }
 
   renderStaticCopy() {
@@ -286,17 +287,49 @@ export class Experience {
       await this.diorama.stopAR();
       return;
     }
-    if (!this.diorama.arSupported) {
+    if (!this.diorama.arSupported && this.needsExternalARBrowser()) {
+      this.openARInChrome();
+      return;
+    }
+    if (!navigator.xr || typeof navigator.xr.requestSession !== "function") {
       this.showInstruction(this.copy.ui.unsupportedAR);
       return;
     }
-    if (this.viewpoint === "chronovisor") await this.toggleViewpoint();
+    if (this.viewpoint === "chronovisor") {
+      this.viewpoint = "diorama";
+      this.chronovisor.hide();
+      this.elements.toggleView.querySelector("span").textContent = this.copy.ui.chronovisor;
+    }
     await this.diorama.startAR();
   }
 
   handleARSupport(supported) {
+    const externalHandoff = !supported && this.needsExternalARBrowser();
     this.elements.enterAR.classList.toggle("is-fallback", !supported);
-    if (!supported) this.elements.enterAR.title = this.copy.ui.unsupportedAR;
+    this.elements.enterAR.querySelector("span").textContent = externalHandoff
+      ? this.copy.ui.openARBrowser
+      : this.copy.ui.placeInSpace;
+    this.elements.enterAR.title = supported
+      ? ""
+      : externalHandoff
+        ? this.copy.ui.openingARBrowser
+        : this.copy.ui.unsupportedAR;
+  }
+
+  needsExternalARBrowser() {
+    const parameters = new URLSearchParams(window.location.search);
+    return /Android/i.test(navigator.userAgent) && !parameters.has("external-ar");
+  }
+
+  openARInChrome() {
+    const url = new URL(window.location.href);
+    url.searchParams.set("external-ar", "1");
+    const target = `${url.host}${url.pathname}${url.search}${url.hash}`;
+    const intent =
+      `intent://${target}#Intent;scheme=https;package=com.android.chrome;` +
+      `S.browser_fallback_url=${encodeURIComponent(url.href)};end`;
+    this.showInstruction(this.copy.ui.openingARBrowser, true);
+    window.location.href = intent;
   }
 
   handleARState(state) {

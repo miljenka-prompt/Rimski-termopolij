@@ -49,11 +49,21 @@
             <video
               id="chronovisorVideo"
               src="./assets/Termopolij_svađa1.mp4"
+              poster="./assets/chronovisor-poster.jpg"
               muted
               loop
               playsinline
               preload="metadata"
             ></video>
+            <button
+              class="chronovisor-retry"
+              id="chronovisorRetry"
+              type="button"
+              data-copy="playChronovisor"
+              hidden
+            >
+              Pokreni kronovizor
+            </button>
             <div class="chronovisor-scan" aria-hidden="true"></div>
             <div class="chronovisor-caption">
               <span data-copy="chronovisorLabel">KRONOVIZOR · INTERPRETATIVNI SLOJ</span>
@@ -235,6 +245,6 @@
         window.addEventListener("unhandledrejection", showFailure, { once: true });
       })();
     </script>
-    <script type="module" src="./src/app.js?v=5"></script>
+    <script type="module" src="./src/app.js?v=6"></script>
   </body>
 </html>

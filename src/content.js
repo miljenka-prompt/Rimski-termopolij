@@ -58,6 +58,7 @@ export const CONTENT = {
       projectLabel: "ANDAUTONIJA · 1. ST. N. E.",
       location: "Ščitarjevo · antička Andautonija",
       placeInSpace: "Postavi u prostor",
+      openARBrowser: "Otvori AR u Chromeu",
       exitAR: "Završi AR",
       chronovisor: "Kronovizor",
       diorama: "Diorama",
@@ -81,6 +82,9 @@ export const CONTENT = {
       legacyLink: "Otvori sačuvani izvorni demo",
       loading: "Učitavanje diorame…",
       unsupportedAR: "Ovaj preglednik nema WebXR AR. Diorama ostaje potpuno dostupna u 3D prikazu.",
+      openingARBrowser:
+        "AR se mora otvoriti u Chromeu. Ako se preglednik ne otvori automatski, odaberi Otvori u pregledniku u gornjem izborniku.",
+      playChronovisor: "Pokreni kronovizor",
       findingSurface: "Pomiči telefon polako dok se ne pojavi brončani krug.",
       tapToPlace: "Dodirni zaslon kako bi postavila dioramu.",
       placed: "Diorama je postavljena. Kreći se oko nje ili je postavi ponovno.",
@@ -112,7 +116,7 @@ export const CONTENT = {
         deck: "Njegova prgavost proizlazi iz izgubljena položaja, ne iz etničke karikature.",
         voice: "U našoj su kući konji imali imena, a ljudi obveze.",
         body:
-          "Zamišljamo ga u nižem lokalnom vojno-zemljoposjedničkom sloju: obitelj ima konje, oružje i ograničen ugled, ali nije velika aristokracija. Eumachus nije rimski auxiliary ni decurio. Ratničko nasljeđe ovdje objašnjava ponos i osjećaj da mu svijet duguje mjesto koje je izgubio.",
+          "Zamišljamo ga u nižem lokalnom vojno-zemljoposjedničkom sloju: obitelj ima konje, oružje i ograničen ugled, ali nije velika aristokracija. Eumachus nije rimski auxiliar ni decurio. Ratničko nasljeđe ovdje objašnjava ponos i osjećaj da mu svijet duguje mjesto koje je izgubio.",
         evidence: "plausible",
         evidenceText:
           "Tračko vojno i konjaničko okruženje povijesno je utemeljeno. Eumachusova obitelj, njezin rang i imovina kompozitna su rekonstrukcija.",
@@ -129,7 +133,7 @@ export const CONTENT = {
           "Prijelaz u ropstvo ostaje namjerno neprecizan: politički i vojni potresi na sjeveru Trakije mogli su čovjeka ratničkoga podrijetla pretvoriti u zarobljenika i robu. Ne tvrdimo točan pohod, godinu ni kupca. Znamo samo dramaturšku jezgru — slobodno podrijetlo i iskustvo prisilne ovisnosti.",
         evidence: "interpretive",
         evidenceText:
-          "Ne postoji izvor za Eumachusovo zarobljavanje. Prizor je autorski most koji izbjegava netočnu tvrdnju o porobljenom rimskom auxiliaryju.",
+          "Ne postoji izvor za Eumachusovo zarobljavanje. Prizor je autorski most koji izbjegava netočnu tvrdnju o porobljenom rimskom auxiliaru.",
         opacity: 0.48,
         visual: "fall",
       },
@@ -182,6 +186,7 @@ export const CONTENT = {
       projectLabel: "ANDAUTONIA · 1ST CENTURY CE",
       location: "Ščitarjevo · ancient Andautonia",
       placeInSpace: "Place in your space",
+      openARBrowser: "Open AR in Chrome",
       exitAR: "End AR",
       chronovisor: "Chronovisor",
       diorama: "Diorama",
@@ -205,6 +210,9 @@ export const CONTENT = {
       legacyLink: "Open the preserved original demo",
       loading: "Loading the diorama…",
       unsupportedAR: "This browser does not provide WebXR AR. The full diorama remains available in 3D.",
+      openingARBrowser:
+        "AR must open in Chrome. If the browser does not open automatically, choose Open in browser from the top menu.",
+      playChronovisor: "Play chronovisor",
       findingSurface: "Move the phone slowly until a bronze ring appears.",
       tapToPlace: "Tap the screen to place the diorama.",
       placed: "The diorama is placed. Walk around it or place it again.",
