@@ -1,61 +1,250 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Rimski Termopolij AR</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.0/aframe/build/aframe-ar.js"></script>
-</head>
-<body style="margin:0; overflow:hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#090b0d" />
+    <meta
+      name="description"
+      content="WebAR interpretacija života Eumachusa, kompozitnog heleniziranog Tračanina i libertina u rimskoj Andautoniji."
+    />
+    <title>Eumachus — Andautonija WebAR</title>
+    <link rel="stylesheet" href="./styles.css?v=7" />
+    <link rel="modulepreload" href="./vendor/three/three.module.min.js" />
+    <link rel="modulepreload" href="./vendor/three/addons/loaders/GLTFLoader.js" />
+    <link rel="preload" href="./assets/models/eumachus-human.glb" as="fetch" type="model/gltf-binary" crossorigin />
+  </head>
+  <body>
+    <a class="skip-link" href="#narrative">Preskoči na priču</a>
 
-  <!-- Button za zvuk -->
-  <button id="playSound"
-    style="position:fixed;top:20px;left:20px;z-index:999;padding:14px 24px;font-size:1.2em;">
-    Pokreni zvuk
-  </button>
+    <main class="experience-shell">
+      <header class="site-header">
+        <div class="brand-lockup">
+          <span class="project-mark" aria-hidden="true">EF</span>
+          <div>
+            <p class="project-label" data-copy="projectLabel">ANDAUTONIJA · 1. ST. N. E.</p>
+            <h1>Eumachus</h1>
+          </div>
+        </div>
 
-  <video id="vid"
-    src="https://miljenka-prompt.github.io/Rimski-termopolij/assets/Termopolij_svađa1.mp4"
-    preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"
-    style="display:none"></video>
+        <div class="header-actions">
+          <div class="language-switcher" role="group" aria-label="Jezik">
+            <button class="language-button is-active" type="button" data-language="hr">HR</button>
+            <button class="language-button" type="button" data-language="en">EN</button>
+          </div>
+          <button class="icon-button" id="openEvidence" type="button" aria-label="Otvori evidencijski sloj">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 10.5v6M12 7.4h.01"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
 
-  <a-scene embedded arjs="sourceType:webcam; debugUIEnabled:false;">
-    <a-marker preset="hiro">
-      <a-video src="#vid"
-        width="2" height="1.125"
-        position="0 0.5 0"
-        rotation="-90 0 0">
-      </a-video>
-    </a-marker>
-    <a-entity camera></a-entity>
-  </a-scene>
-  
-  <script>
-    // Samo user gesture - unmute i play za zvuk
-    document.getElementById('playSound').onclick = function() {
-      var vid = document.getElementById('vid');
-      vid.muted = false;
-      vid.play();
-      this.style.display = 'none';
-    };
-    // Kada marker pronađen, pokreće video u AR
-    document.querySelector('a-marker').addEventListener('markerFound', function () {
-      var vid = document.getElementById('vid');
-      vid.play();
-    });
-  </script>
-</body>
+      <section class="experience-grid" aria-label="Interaktivni prikaz Eumachusova života">
+        <div class="visual-stage" id="visualStage">
+          <canvas id="diorama" aria-label="Interaktivna trodimenzionalna diorama"></canvas>
+
+          <div class="chronovisor" id="chronovisor" hidden>
+            <video
+              id="chronovisorVideo"
+              src="./assets/Termopolij_svađa1.mp4"
+              poster="./assets/chronovisor-poster.jpg"
+              muted
+              loop
+              playsinline
+              preload="metadata"
+            ></video>
+            <button
+              class="chronovisor-retry"
+              id="chronovisorRetry"
+              type="button"
+              data-copy="playChronovisor"
+              hidden
+            >
+              Pokreni kronovizor
+            </button>
+            <div class="chronovisor-scan" aria-hidden="true"></div>
+            <div class="chronovisor-caption">
+              <span data-copy="chronovisorLabel">KRONOVIZOR · INTERPRETATIVNI SLOJ</span>
+              <strong id="chronovisorTitle">Glas u tuđoj kući</strong>
+            </div>
+          </div>
+
+          <div class="stage-topline">
+            <span class="location-chip" data-copy="location">Ščitarjevo · antička Andautonija</span>
+            <span class="scene-chip"><span id="sceneNumber">01</span> / 06</span>
+          </div>
+
+          <div class="evidence-meter" aria-label="Vrsta evidencije">
+            <span class="evidence-dot" id="evidenceDot" aria-hidden="true"></span>
+            <span id="evidenceLabel">Povijesno utemeljeno</span>
+          </div>
+
+          <div class="ar-instruction" id="arInstruction" aria-live="polite"></div>
+
+          <div class="stage-controls" aria-label="Kontrole prikaza">
+            <button class="control-button primary" id="enterAR" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4"></path>
+                <path d="m8 10 4-2 4 2v5l-4 2-4-2z"></path>
+              </svg>
+              <span data-copy="placeInSpace">Postavi u prostor</span>
+            </button>
+            <button class="control-button" id="toggleView" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+                <circle cx="12" cy="12" r="2.5"></circle>
+              </svg>
+              <span data-copy="chronovisor">Kronovizor</span>
+            </button>
+            <button class="control-button square" id="toggleSound" type="button" aria-label="Uključi zvuk">
+              <svg class="sound-on-icon" aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M11 5 6.5 9H3v6h3.5L11 19zM15 9a4 4 0 0 1 0 6M17.5 6.5a7.5 7.5 0 0 1 0 11"></path>
+              </svg>
+              <svg class="sound-off-icon" aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M11 5 6.5 9H3v6h3.5L11 19zM16 9l5 6M21 9l-5 6"></path>
+              </svg>
+            </button>
+            <button class="control-button square" id="resetView" type="button" aria-label="Vrati početni pogled">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M4 9a8 8 0 1 1-.2 5.8M4 4v5h5"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <article class="narrative-panel" id="narrative">
+          <div class="route-line" aria-label="Mogući životni put">
+            <span data-copy="routeThrace">Trakija</span>
+            <i aria-hidden="true"></i>
+            <span data-copy="routeSiscia">Siscija</span>
+            <i aria-hidden="true"></i>
+            <span data-copy="routeAndautonia">Andautonija</span>
+          </div>
+
+          <div class="story-heading">
+            <p class="scene-kicker" id="sceneKicker">IME IZMEĐU SVJETOVA</p>
+            <h2 id="sceneTitle">Eumachos postaje Eumachus</h2>
+            <p class="scene-deck" id="sceneDeck"></p>
+          </div>
+
+          <blockquote id="sceneVoice"></blockquote>
+          <p class="scene-body" id="sceneBody"></p>
+
+          <button class="source-note" id="openSceneEvidence" type="button">
+            <span data-copy="whyThisScene">Zašto je ovaj prizor ovakav?</span>
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
+          </button>
+
+          <div class="story-footer">
+            <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
+            <div class="navigation-row">
+              <button class="nav-button" id="previousScene" type="button">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
+                <span data-copy="previous">Natrag</span>
+              </button>
+              <p id="scenePosition">1 od 6</p>
+              <button class="nav-button next" id="nextScene" type="button">
+                <span data-copy="next">Dalje</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></svg>
+              </button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <dialog class="evidence-dialog" id="evidenceDialog">
+      <div class="dialog-shell">
+        <header>
+          <div>
+            <p class="dialog-kicker" data-copy="evidenceLayer">EVIDENCIJSKI SLOJ</p>
+            <h2 data-copy="whatWeKnow">Što znamo, a što rekonstruiramo</h2>
+          </div>
+          <button class="icon-button" id="closeEvidence" type="button" aria-label="Zatvori">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+          </button>
+        </header>
+
+        <p class="dialog-intro" data-copy="opacityMethod">
+          Prozirnost u 3D prizoru označava vrstu interpretacije. Ona nije izmišljeni postotak povijesne istine.
+        </p>
+
+        <div class="evidence-legend" id="evidenceLegend"></div>
+
+        <section class="scene-evidence-card">
+          <p class="dialog-kicker" data-copy="currentScene">TRENUTAČNI PRIZOR</p>
+          <h3 id="evidenceSceneTitle"></h3>
+          <p id="evidenceSceneText"></p>
+        </section>
+
+        <section class="context-section">
+          <h3 data-copy="whyFreedman">Zašto prikazujemo libertina?</h3>
+          <p data-copy="freedmanContext"></p>
+        </section>
+
+        <section class="context-section">
+          <h3 data-copy="sourcesTitle">Polazišta</h3>
+          <ul class="source-list">
+            <li><a href="https://www.amz.hr/hr/muzej/arheoloski-park-andautonija/" target="_blank" rel="noreferrer">Arheološki muzej u Zagrebu — Andautonija</a></li>
+            <li><a href="https://inscriptions.packhum.org/text/170403" target="_blank" rel="noreferrer">PHI Greek Inscriptions — Eumachos u Mezambrii</a></li>
+            <li><a href="https://doi.org/10.5871/bacad/9780197266540.003.0008" target="_blank" rel="noreferrer">Dan Dana — grčka i tračka imena</a></li>
+          </ul>
+        </section>
+
+        <a class="legacy-link" href="./legacy/" data-copy="legacyLink">Otvori sačuvani izvorni demo</a>
+      </div>
+    </dialog>
+
+    <div class="loading-screen" id="loadingScreen" aria-live="polite">
+      <span class="loading-mark">EF</span>
+      <p data-copy="loading">Učitavanje diorame…</p>
+    </div>
+
+    <noscript>Za interaktivni prikaz potrebno je omogućiti JavaScript.</noscript>
+    <script>
+      (() => {
+        const loadingScreen = document.querySelector("#loadingScreen");
+        const instruction = document.querySelector("#arInstruction");
+        let timer;
+        let completed = false;
+
+        const showFailure = () => {
+          if (completed) return;
+          window.clearTimeout(timer);
+          loadingScreen.classList.add("is-hidden");
+          instruction.dataset.loadingFallback = "true";
+          instruction.textContent =
+            "3D prikaz se nije učitao. Tekstualna priča ostaje dostupna; pokušajte osvježiti stranicu.";
+          instruction.classList.add("is-visible");
+        };
+
+        window.EumachusLoading = {
+          complete() {
+            completed = true;
+            window.clearTimeout(timer);
+            loadingScreen.classList.add("is-hidden");
+            if (instruction.dataset.loadingFallback === "true") {
+              delete instruction.dataset.loadingFallback;
+              instruction.textContent = "";
+              instruction.classList.remove("is-visible");
+            }
+          },
+          fail: showFailure,
+        };
+
+        timer = window.setTimeout(showFailure, 8000);
+        window.addEventListener(
+          "error",
+          (event) => {
+            if (event.target?.tagName === "SCRIPT") showFailure();
+          },
+          true,
+        );
+        window.addEventListener("unhandledrejection", showFailure, { once: true });
+      })();
+    </script>
+    <script type="module" src="./src/app.js?v=7"></script>
+  </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-

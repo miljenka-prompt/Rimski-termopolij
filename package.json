@@ -1,0 +1,9 @@
+{
+  "name": "eumachus-andautonia-webar",
+  "version": "0.6.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/validate.mjs"
+  }
+}
