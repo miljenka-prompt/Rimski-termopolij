@@ -3,7 +3,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.183.2/build/three.m
 window.THREE = THREE
 
 const VIDEO_URL = './assets/Termopolij_svađa1.mp4'
-const PLACEMENT_DISTANCE = 2.15
+const PLACEMENT_DISTANCE = 2.65
 const SCENE_HEIGHT = 2.12
 const SCENE_WIDTH_SCALE = 1.1
 const FADE_OUT_START = 28.55
@@ -69,7 +69,9 @@ function livingMaterial(map) {
         // A long, irregular dissolve keeps the centre legible while letting
         // walls, steps and floor of the real room show through at the margins.
         float feather = 1. - smoothstep(.48 + irregular, 1. + irregular, shape);
-        float floorBlend = smoothstep(.01, .19, vUv.y);
+        // Keep feet and the available lower frame; dissolve only the last
+        // narrow strip into the real floor.
+        float floorBlend = smoothstep(.005, .075, vUv.y);
         float alpha = opacity * feather * floorBlend;
         if (alpha < .012) discard;
         gl_FragColor = vec4(color.rgb, alpha);
