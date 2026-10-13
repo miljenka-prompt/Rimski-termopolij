@@ -175,18 +175,27 @@ function placeAt(clientX, clientY, canvas) {
   const hit = new THREE.Vector3()
   if (!raycaster.ray.intersectPlane(floorPlane, hit)) return
 
-  const dx = hit.x - xrCamera.position.x
-  const dz = hit.z - xrCamera.position.z
+  // Raycaster intersections are in world space. XR cameras can be parented
+  // under a tracking origin, so camera.position may be only a local pose.
+  // Keeping both operands in world space prevents the first placement from
+  // being pushed far away (and therefore appearing tiny).
+  const cameraPosition = new THREE.Vector3()
+  const cameraQuaternion = new THREE.Quaternion()
+  xrCamera.getWorldPosition(cameraPosition)
+  xrCamera.getWorldQuaternion(cameraQuaternion)
+
+  const dx = hit.x - cameraPosition.x
+  const dz = hit.z - cameraPosition.z
   const distance = Math.hypot(dx, dz)
   if (distance > .01) {
-    hit.x = xrCamera.position.x + (dx / distance) * PLACEMENT_DISTANCE
-    hit.z = xrCamera.position.z + (dz / distance) * PLACEMENT_DISTANCE
+    hit.x = cameraPosition.x + (dx / distance) * PLACEMENT_DISTANCE
+    hit.z = cameraPosition.z + (dz / distance) * PLACEMENT_DISTANCE
   } else {
-    const facing = new THREE.Vector3(0, 0, -1).applyQuaternion(xrCamera.quaternion)
+    const facing = new THREE.Vector3(0, 0, -1).applyQuaternion(cameraQuaternion)
     facing.y = 0
     facing.normalize()
-    hit.x = xrCamera.position.x + facing.x * PLACEMENT_DISTANCE
-    hit.z = xrCamera.position.z + facing.z * PLACEMENT_DISTANCE
+    hit.x = cameraPosition.x + facing.x * PLACEMENT_DISTANCE
+    hit.z = cameraPosition.z + facing.z * PLACEMENT_DISTANCE
   }
 
   world.position.copy(hit)
@@ -202,8 +211,6 @@ const spatialModule = () => ({
     const {scene, camera} = XR8.Threejs.xrScene()
     xrCamera = camera
     build(scene)
-    camera.position.set(0, 1.6, 2.5)
-    XR8.XrController.updateCameraProjectionMatrix({origin: camera.position, facing: camera.quaternion})
     canvas.addEventListener('touchmove', (event) => event.preventDefault(), {passive: false})
     canvas.addEventListener('pointerup', (event) => {
       if (event.target === canvas) placeAt(event.clientX, event.clientY, canvas)
@@ -213,10 +220,12 @@ const spatialModule = () => ({
     if (!livingScene || !xrCamera || !world?.visible) return
     updateTemporalBlend()
     const scenePosition = new THREE.Vector3()
+    const cameraPosition = new THREE.Vector3()
     livingScene.getWorldPosition(scenePosition)
+    xrCamera.getWorldPosition(cameraPosition)
     const yaw = Math.atan2(
-      xrCamera.position.x - scenePosition.x,
-      xrCamera.position.z - scenePosition.z
+      cameraPosition.x - scenePosition.x,
+      cameraPosition.z - scenePosition.z
     )
     livingScene.rotation.set(0, yaw, 0)
   },
