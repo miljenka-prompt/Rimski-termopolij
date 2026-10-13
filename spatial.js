@@ -4,7 +4,11 @@ window.THREE = THREE
 
 const VIDEO_URL = './assets/Termopolij_svađa1.mp4'
 const PLACEMENT_DISTANCE = 2.15
-const SCENE_HEIGHT = 2.05
+const SCENE_HEIGHT = 2.12
+const SCENE_WIDTH_SCALE = 1.1
+const FADE_OUT_START = 28.55
+const LOOP_AT = 29.25
+const FADE_IN_END = 1.15
 
 let world = null
 let livingScene = null
@@ -30,7 +34,9 @@ function setStatus(text, autoHideMs = 0) {
 function createVideo() {
   const element = document.createElement('video')
   element.src = VIDEO_URL
-  element.loop = true
+  // The source contains 3.4 s of terminal black. We loop before it and let
+  // the AR layer dissolve into the real room instead of showing a black plane.
+  element.loop = false
   element.muted = false
   element.playsInline = true
   element.setAttribute('playsinline', '')
@@ -57,11 +63,14 @@ function livingMaterial(map) {
       void main() {
         vec4 color = texture2D(map, vUv);
         vec2 edge = abs((vUv - .5) / .5);
-        float shape = pow(pow(edge.x, 7.) + pow(edge.y, 7.), 1. / 7.);
+        float shape = pow(pow(edge.x, 6.) + pow(edge.y, 6.), 1. / 6.);
         float irregular = sin(vUv.x * 31. + sin(vUv.y * 17.)) * .025
                         + sin((vUv.x + vUv.y) * 43.) * .014;
-        float feather = 1. - smoothstep(.77 + irregular, 1. + irregular, shape);
-        float alpha = opacity * feather;
+        // A long, irregular dissolve keeps the centre legible while letting
+        // walls, steps and floor of the real room show through at the margins.
+        float feather = 1. - smoothstep(.48 + irregular, 1. + irregular, shape);
+        float floorBlend = smoothstep(.01, .19, vUv.y);
+        float alpha = opacity * feather * floorBlend;
         if (alpha < .012) discard;
         gl_FragColor = vec4(color.rgb, alpha);
       }
@@ -106,7 +115,7 @@ function build(scene) {
 
   video.addEventListener('loadedmetadata', () => {
     const aspect = video.videoWidth / video.videoHeight
-    const width = SCENE_HEIGHT * aspect
+    const width = SCENE_HEIGHT * aspect * SCENE_WIDTH_SCALE
     livingScene.geometry.dispose()
     livingScene.geometry = curvePlane(new THREE.PlaneGeometry(width, SCENE_HEIGHT, 24, 1))
   }, {once: true})
@@ -114,6 +123,36 @@ function build(scene) {
   video.addEventListener('error', () => {
     setStatus('Prizor se nije učitao. Osvježi stranicu i pokušaj ponovno.')
   })
+
+  video.addEventListener('ended', () => {
+    video.currentTime = 0
+    video.play().catch(() => {})
+  })
+}
+
+function smoothstep(min, max, value) {
+  const x = Math.min(1, Math.max(0, (value - min) / (max - min)))
+  return x * x * (3 - 2 * x)
+}
+
+function updateTemporalBlend() {
+  if (!video || !livingScene) return
+  const material = livingScene.material
+  const time = video.currentTime
+
+  if (time >= LOOP_AT) {
+    material.uniforms.opacity.value = 0
+    video.currentTime = 0
+    return
+  }
+
+  if (time >= FADE_OUT_START) {
+    material.uniforms.opacity.value = 1 - smoothstep(FADE_OUT_START, LOOP_AT, time)
+  } else if (time < FADE_IN_END) {
+    material.uniforms.opacity.value = smoothstep(0, FADE_IN_END, time)
+  } else {
+    material.uniforms.opacity.value = 1
+  }
 }
 
 async function startLivingScene() {
@@ -175,6 +214,7 @@ const spatialModule = () => ({
   },
   onUpdate: () => {
     if (!livingScene || !xrCamera || !world?.visible) return
+    updateTemporalBlend()
     const scenePosition = new THREE.Vector3()
     livingScene.getWorldPosition(scenePosition)
     const yaw = Math.atan2(
