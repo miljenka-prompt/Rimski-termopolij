@@ -1,58 +1,149 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="hr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Rimski Termopolij AR</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.0/aframe/build/aframe-ar.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#1b100b">
+  <meta name="description" content="Carnuntum: prostorni WebAR prizor rimskog termopolija u stvarnom prostoru.">
+  <title>Carnuntum · Živi termopolij</title>
+  <style>
+    :root{color-scheme:dark;--ink:#f6eadb;--muted:#c9b9a8;--line:rgba(237,193,139,.25)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#130c08;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.58}
+    .hero{position:relative;min-height:88svh;display:flex;align-items:flex-end;overflow:hidden;padding:clamp(110px,18vh,180px) max(22px,7vw) clamp(54px,8vw,90px)}
+    .hero-video,.hero-shade{position:absolute;inset:0;width:100%;height:100%}.hero-video{object-fit:cover;filter:saturate(.78) contrast(1.04)}.hero-shade{background:linear-gradient(180deg,rgba(15,8,5,.35),rgba(15,8,5,.52) 42%,rgba(15,8,5,.98))}
+    nav{position:absolute;z-index:2;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) max(18px,5vw);gap:18px}.brand{color:#fff;text-decoration:none;font-size:.74rem;font-weight:850;letter-spacing:.14em}.languages{display:flex;gap:5px}.lang{border:1px solid var(--line);background:rgba(25,12,7,.58);color:var(--muted);border-radius:999px;padding:.48rem .65rem;font-weight:800;cursor:pointer}.lang.is-active{background:var(--ink);color:#24150d}
+    .hero-copy{position:relative;z-index:1;width:min(840px,100%)}.eyebrow,.section-label{margin:0 0 12px;color:#f0b879;font-size:.74rem;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.hero h1{max-width:780px;margin:0;font-family:Georgia,serif;font-size:clamp(2.5rem,7vw,6.3rem);line-height:.95;letter-spacing:-.045em}.hero-copy>p:not(.eyebrow){max-width:680px;margin:24px 0 0;color:#e6d8c8;font-size:clamp(1rem,2vw,1.28rem)}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}.actions a{padding:.92rem 1.2rem;border-radius:999px;text-decoration:none;font-weight:800}.primary{background:var(--ink);color:#24150d}.secondary{border:1px solid var(--line);background:rgba(37,19,11,.62);color:#fff;backdrop-filter:blur(10px)}
+    main{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:70px 0 90px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.grid article,.sources{padding:clamp(24px,4vw,44px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(70,39,22,.38),rgba(27,15,9,.75))}.grid .note{grid-column:1/-1}.grid h2,.sources h2{margin:0 0 14px;font-family:Georgia,serif;font-size:clamp(1.6rem,3vw,2.5rem);line-height:1.08}.grid p:not(.section-label){margin:0;color:var(--muted)}
+    .sources{margin-top:18px}.sources ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;margin:24px 0 0;padding-left:1.2rem}.sources a{color:#f0c28e;text-underline-offset:3px}
+    footer{padding:20px max(18px,5vw);border-top:1px solid var(--line);color:#a99785;font-size:.78rem;text-align:center}[hidden]{display:none!important}
+    @media(max-width:720px){.hero{min-height:92svh;padding-left:20px;padding-right:20px}.grid,.sources ul{grid-template-columns:1fr}.grid .note{grid-column:auto}.brand{max-width:180px}.hero h1{font-size:clamp(2.55rem,13vw,4.4rem)}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-video{display:none}}
+  </style>
 </head>
-<body style="margin:0; overflow:hidden">
+<body>
+  <header class="hero">
+    <video class="hero-video" src="https://miljenka-prompt.github.io/Rimski-termopolij/assets/Termopolij_sva%C4%91a1.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
+    <div class="hero-shade"></div>
+    <nav>
+      <a class="brand" href="https://miljenka-prompt.github.io/Rimski-termopolij/">CARNUNTUM · ŽIVI SLOJ</a>
+      <div class="languages" aria-label="Language">
+        <button class="lang is-active" data-lang="hr" type="button">HR</button>
+        <button class="lang" data-lang="en" type="button">EN</button>
+        <button class="lang" data-lang="de" type="button">DE</button>
+      </div>
+    </nav>
 
-  <!-- Button za zvuk -->
-  <button id="playSound"
-    style="position:fixed;top:20px;left:20px;z-index:999;padding:14px 24px;font-size:1.2em;">
-    Pokreni zvuk
-  </button>
+    <div class="hero-copy localized" data-copy="hr">
+      <p class="eyebrow">Interpretativni WebAR · Carnuntum, 2. stoljeće</p>
+      <h1>Prostorni termopolij u stvarnom prostoru</h1>
+      <p>Dodirnite pod i otvorite živu rimsku zalogajnicu u prostoru oko sebe — s ljudima, hranom, svađom i ambijentalnim zvukom.</p>
+      <div class="actions">
+        <a class="primary" href="https://miljenka-prompt.github.io/Rimski-termopolij/spatial.html?lang=hr">Otvori prostorni prizor</a>
+        <a class="secondary" href="https://miljenka-prompt.github.io/Rimski-termopolij/marker.html">Otvori verziju s markerom</a>
+      </div>
+    </div>
 
-  <a href="./spatial.html"
-    style="position:fixed;top:20px;right:20px;z-index:999;padding:14px 20px;border-radius:8px;background:#2b170dcc;color:#fff;text-decoration:none;font:700 15px/1.2 system-ui,-apple-system,sans-serif;border:1px solid #f0c58b66;">
-    Otvori prostorni termopolij
-  </a>
+    <div class="hero-copy localized" data-copy="en" hidden>
+      <p class="eyebrow">Interpretive WebAR · Carnuntum, 2nd century</p>
+      <h1>A spatial thermopolium in your real environment</h1>
+      <p>Tap the floor and open a living Roman food shop around you — with people, food, an argument and the complete ambient soundscape.</p>
+      <div class="actions">
+        <a class="primary" href="https://miljenka-prompt.github.io/Rimski-termopolij/spatial.html?lang=en">Open the spatial scene</a>
+        <a class="secondary" href="https://miljenka-prompt.github.io/Rimski-termopolij/marker.html">Open the marker version</a>
+      </div>
+    </div>
 
-  <video id="vid"
-    src="https://miljenka-prompt.github.io/Rimski-termopolij/assets/Termopolij_svađa1.mp4"
-    preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous"
-    style="display:none"></video>
+    <div class="hero-copy localized" data-copy="de" hidden>
+      <p class="eyebrow">Interpretatives WebAR · Carnuntum, 2. Jahrhundert</p>
+      <h1>Ein räumliches Thermopolium in Ihrer realen Umgebung</h1>
+      <p>Tippen Sie auf den Boden und öffnen Sie eine belebte römische Garküche im Raum um sich — mit Menschen, Speisen, Streit und vollständiger Geräuschkulisse.</p>
+      <div class="actions">
+        <a class="primary" href="https://miljenka-prompt.github.io/Rimski-termopolij/spatial.html?lang=de">Räumliche Szene öffnen</a>
+        <a class="secondary" href="https://miljenka-prompt.github.io/Rimski-termopolij/marker.html">Marker-Version öffnen</a>
+      </div>
+    </div>
+  </header>
 
-  <a-scene embedded arjs="sourceType:webcam; debugUIEnabled:false;">
-    <a-marker preset="hiro">
-      <a-video src="#vid"
-        width="2" height="1.125"
-        position="0 0.5 0"
-        rotation="-90 0 0">
-      </a-video>
-    </a-marker>
-    <a-entity camera></a-entity>
-  </a-scene>
+  <main>
+    <section class="localized grid" data-copy="hr">
+      <article>
+        <p class="section-label">Povijesni okvir</p>
+        <h2>Carnuntum nije bio kulisa nego grad</h2>
+        <p>Na sjecištu Dunavskog limesa i Jantarnog puta Carnuntum je iz vojnog uporišta izrastao u veliko političko, trgovačko i civilno središte Panonije Superior. Uz vojni logor postojao je razvijen civilni grad, a arheološka prospekcija prepoznaje gostionice i taverne uz cestu prema amfiteatru.</p>
+      </article>
+      <article>
+        <p class="section-label">Kompozitni lik</p>
+        <h2>Eumachus, libertinus i tabernarius</h2>
+        <p>Eumachus je kompozitni interpretativni lik tračkog podrijetla: oslobođenik, razmjerno pismen, dotaknut helenističkim obrazovanjem i trajno ogorčen raskorakom između vlastite slike o sebi i društvenog položaja. Nije identificirana povijesna osoba, nego narativni vodič sastavljen iz dokumentiranih društvenih obrazaca rimskoga svijeta.</p>
+      </article>
+      <article class="note">
+        <p class="section-label">Metoda</p>
+        <h2>Što je rekonstruirano, a što interpretirano?</h2>
+        <p>Prizor spaja dokumentirani urbani kontekst Carnuntuma s tipologijom rimskih prostora za prodaju hrane i pića. Ne predstavlja digitalni preslik određenog iskopanog lokala. Kompozitni likovi, razgovor i pojedinosti radnje autorska su interpretacija utemeljena na povijesno mogućem kontekstu.</p>
+      </article>
+    </section>
 
-  <div style="position:fixed;left:12px;right:12px;bottom:10px;z-index:998;padding:7px 10px;border-radius:8px;background:rgba(0,0,0,.48);color:#fff;font:12px/1.35 system-ui,-apple-system,sans-serif;text-align:center;pointer-events:none;">
-    Concept, authorship &amp; creative direction: Miljenka Ćurković · AI architecture &amp; development collaboration: ChatGPT — GPT-5.6 Sol (OpenAI)
-  </div>
-  
+    <section class="localized grid" data-copy="en" hidden>
+      <article>
+        <p class="section-label">Historical setting</p>
+        <h2>Carnuntum was a city, not a backdrop</h2>
+        <p>At the intersection of the Danube Limes and the Amber Road, Carnuntum grew from a military base into a major political, commercial and civilian centre of Pannonia Superior. A flourishing civilian town developed beside the military complex, while archaeological prospection identifies inns and taverns along the road to the amphitheatre.</p>
+      </article>
+      <article>
+        <p class="section-label">Composite character</p>
+        <h2>Eumachus, libertinus and tabernarius</h2>
+        <p>Eumachus is a composite interpretive character of Thracian origin: a freedman, relatively literate, touched by Hellenistic learning, and embittered by the distance between his self-image and his social position. He is not an identified historical person, but a narrative guide assembled from documented social patterns of the Roman world.</p>
+      </article>
+      <article class="note">
+        <p class="section-label">Method</p>
+        <h2>Reconstruction or interpretation?</h2>
+        <p>The scene combines Carnuntum’s documented urban context with the typology of Roman food-and-drink premises. It is not a digital replica of one excavated establishment. Its composite characters, dialogue and events are an authored interpretation grounded in a historically plausible setting.</p>
+      </article>
+    </section>
+
+    <section class="localized grid" data-copy="de" hidden>
+      <article>
+        <p class="section-label">Historischer Rahmen</p>
+        <h2>Carnuntum war eine Stadt, keine Kulisse</h2>
+        <p>Am Schnittpunkt von Donaulimes und Bernsteinstraße entwickelte sich Carnuntum von einem Militärstützpunkt zu einem bedeutenden politischen, wirtschaftlichen und zivilen Zentrum der Pannonia Superior. Neben dem Militärkomplex entstand eine blühende Zivilstadt; archäologische Prospektionen weisen Gasthäuser und Tavernen an der Straße zum Amphitheater nach.</p>
+      </article>
+      <article>
+        <p class="section-label">Kompositfigur</p>
+        <h2>Eumachus, libertinus und tabernarius</h2>
+        <p>Eumachus ist eine interpretative Kompositfigur thrakischer Herkunft: ein Freigelassener, vergleichsweise gebildet, von hellenistischer Bildung geprägt und verbittert über die Kluft zwischen seinem Selbstbild und seiner gesellschaftlichen Stellung. Er ist keine identifizierte historische Person, sondern wurde aus dokumentierten sozialen Mustern der römischen Welt zusammengesetzt.</p>
+      </article>
+      <article class="note">
+        <p class="section-label">Methode</p>
+        <h2>Rekonstruktion oder Interpretation?</h2>
+        <p>Die Szene verbindet den dokumentierten urbanen Kontext Carnuntums mit der Typologie römischer Verkaufsräume für Speisen und Getränke. Sie ist keine digitale Kopie eines bestimmten ausgegrabenen Lokals. Kompositfiguren, Dialog und Handlung sind eine historisch plausible, künstlerische Interpretation.</p>
+      </article>
+    </section>
+
+    <section class="sources">
+      <p class="section-label">Izvori · Sources · Quellen</p>
+      <h2>Carnuntum i trački kontekst</h2>
+      <ul>
+        <li><a href="https://www.carnuntum.at/en/history/history" target="_blank" rel="noreferrer">Römerstadt Carnuntum — History</a></li>
+        <li><a href="https://www.carnuntum.at/en/roman_city" target="_blank" rel="noreferrer">Römerstadt Carnuntum — Roman City</a></li>
+        <li><a href="https://carnuntum.archpro.science/ludus_en.html" target="_blank" rel="noreferrer">ArchPro Carnuntum — inns and taverns near the amphitheatre</a></li>
+        <li><a href="https://culture.ec.europa.eu/cultural-heritage/initiatives-and-success-stories/european-heritage-label/european-heritage-label-sites/archaeological-park-carnuntum-austria" target="_blank" rel="noreferrer">European Commission — Archaeological Park Carnuntum</a></li>
+        <li><a href="https://iris.uniroma1.it/handle/11573/1662241" target="_blank" rel="noreferrer">Sapienza University of Rome — Thracians in Rome</a></li>
+        <li><a href="https://bmcr.brynmawr.edu/2010/2010.07.09/" target="_blank" rel="noreferrer">Bryn Mawr Classical Review — Thracians in the Roman Imperial Army</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>Concept, authorship &amp; creative direction: Miljenka Ćurković · AI architecture &amp; development collaborator: ChatGPT — GPT-5.6 Sol (OpenAI)</footer>
   <script>
-    // Samo user gesture - unmute i play za zvuk
-    document.getElementById('playSound').onclick = function() {
-      var vid = document.getElementById('vid');
-      vid.muted = false;
-      vid.play();
-      this.style.display = 'none';
-    };
-    // Kada marker pronađen, pokreće video u AR
-    document.querySelector('a-marker').addEventListener('markerFound', function () {
-      var vid = document.getElementById('vid');
-      vid.play();
-    });
+    const buttons = document.querySelectorAll('.lang')
+    const copies = document.querySelectorAll('.localized')
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      const language = button.dataset.lang
+      document.documentElement.lang = language
+      buttons.forEach((item) => item.classList.toggle('is-active', item === button))
+      copies.forEach((copy) => { copy.hidden = copy.dataset.copy !== language })
+    }))
   </script>
 </body>
 </html>

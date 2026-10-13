@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>Rimski termopolij · Marker AR</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.0/aframe/build/aframe-ar.js"></script>
+</head>
+<body style="margin:0;overflow:hidden">
+  <a href="./" style="position:fixed;top:20px;left:20px;z-index:999;padding:14px 20px;border-radius:8px;background:#2b170dcc;color:#fff;text-decoration:none;font:700 15px/1.2 system-ui,-apple-system,sans-serif;border:1px solid #f0c58b66">← Projekt</a>
+  <button id="playSound" style="position:fixed;top:20px;right:20px;z-index:999;padding:14px 20px;border-radius:8px;border:1px solid #f0c58b66;background:#2b170dcc;color:#fff;font:700 15px/1.2 system-ui,-apple-system,sans-serif">Pokreni zvuk</button>
+  <video id="vid" src="./assets/Termopolij_svađa1.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous" style="display:none"></video>
+  <a-scene embedded arjs="sourceType:webcam;debugUIEnabled:false">
+    <a-marker preset="hiro"><a-video src="#vid" width="2" height="2" position="0 0.5 0" rotation="-90 0 0"></a-video></a-marker>
+    <a-entity camera></a-entity>
+  </a-scene>
+  <div style="position:fixed;left:12px;right:12px;bottom:10px;z-index:998;padding:7px 10px;border-radius:8px;background:rgba(0,0,0,.48);color:#fff;font:12px/1.35 system-ui,-apple-system,sans-serif;text-align:center;pointer-events:none">Concept, authorship &amp; creative direction: Miljenka Ćurković · AI architecture &amp; development collaborator: ChatGPT — GPT-5.6 Sol (OpenAI)</div>
+  <script>
+    const video = document.getElementById('vid')
+    document.getElementById('playSound').onclick = function () { video.muted = false; video.play(); this.style.display = 'none' }
+    document.querySelector('a-marker').addEventListener('markerFound', () => video.play())
+  </script>
+</body>
+</html>

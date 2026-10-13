@@ -11,6 +11,36 @@ const SCENE_WIDTH = SCENE_HEIGHT * SCENE_ASPECT * SCENE_WIDTH_SCALE
 const FADE_OUT_START = 28.55
 const LOOP_AT = 29.25
 const FADE_IN_END = 1.15
+const LANGUAGE = ['hr', 'en', 'de'].includes(new URLSearchParams(location.search).get('lang'))
+  ? new URLSearchParams(location.search).get('lang')
+  : 'hr'
+const COPY = {
+  hr: {
+    back: '← Projekt', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
+    intro: 'Usmjeri kameru prema podu i dodirni mjesto na kojem želiš otvoriti termopolij.',
+    hint: 'Dodirni pod da se pojavi termopolij', replace: 'Postavi ponovno', play: 'Pokreni prizor i zvuk',
+    pause: 'Pauziraj prizor', loadError: 'Prizor se nije učitao. Osvježi stranicu i pokušaj ponovno.',
+    tapPlay: 'Termopolij je postavljen. Dodirni “Pokreni prizor i zvuk”.', opened: 'Termopolij je otvoren u prostoru.',
+    replaceHint: 'Usmjeri kameru prema podu i dodirni novo mjesto za termopolij.', first: 'Najprije dodirni pod i postavi termopolij.'
+  },
+  en: {
+    back: '← Project', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
+    intro: 'Point the camera at the floor and tap where you want to open the thermopolium.',
+    hint: 'Tap the floor to reveal the thermopolium', replace: 'Place again', play: 'Play scene and sound',
+    pause: 'Pause scene', loadError: 'The scene could not be loaded. Refresh the page and try again.',
+    tapPlay: 'The thermopolium is placed. Tap “Play scene and sound”.', opened: 'The thermopolium is open in your space.',
+    replaceHint: 'Point the camera at the floor and tap a new position for the thermopolium.', first: 'Tap the floor to place the thermopolium first.'
+  },
+  de: {
+    back: '← Projekt', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
+    intro: 'Richten Sie die Kamera auf den Boden und tippen Sie auf die Stelle, an der das Thermopolium erscheinen soll.',
+    hint: 'Auf den Boden tippen, um das Thermopolium zu öffnen', replace: 'Neu platzieren', play: 'Szene und Ton starten',
+    pause: 'Szene pausieren', loadError: 'Die Szene konnte nicht geladen werden. Aktualisieren Sie die Seite und versuchen Sie es erneut.',
+    tapPlay: 'Das Thermopolium ist platziert. Tippen Sie auf „Szene und Ton starten“.', opened: 'Das Thermopolium wurde im Raum geöffnet.',
+    replaceHint: 'Richten Sie die Kamera auf den Boden und wählen Sie eine neue Position.', first: 'Tippen Sie zuerst auf den Boden, um das Thermopolium zu platzieren.'
+  }
+}
+const copy = (key) => COPY[LANGUAGE][key]
 
 let world = null
 let livingScene = null
@@ -118,7 +148,7 @@ function build(scene) {
   world.add(livingScene)
 
   video.addEventListener('error', () => {
-    setStatus('Prizor se nije učitao. Osvježi stranicu i pokušaj ponovno.')
+    setStatus(copy('loadError'))
   })
 
   video.addEventListener('ended', () => {
@@ -156,10 +186,10 @@ async function startLivingScene() {
   try {
     video.muted = false
     await video.play()
-    $('video-toggle').textContent = 'Pauziraj prizor'
+    $('video-toggle').textContent = copy('pause')
     return true
   } catch {
-    setStatus('Termopolij je postavljen. Dodirni “Pokreni prizor i zvuk”.')
+    setStatus(copy('tapPlay'))
     return false
   }
 }
@@ -201,7 +231,7 @@ function placeAt(clientX, clientY, canvas) {
   world.position.copy(hit)
   world.visible = true
   $('placement-hint').classList.add('is-hidden')
-  setStatus('Termopolij je otvoren u prostoru.', 1800)
+  setStatus(copy('opened'), 1800)
   startLivingScene()
 }
 
@@ -232,6 +262,13 @@ const spatialModule = () => ({
 })
 
 function start() {
+  document.documentElement.lang = LANGUAGE
+  $('back-link').textContent = copy('back')
+  $('scene-title').textContent = copy('title')
+  $('status').textContent = copy('intro')
+  $('placement-hint').textContent = copy('hint')
+  $('replace').textContent = copy('replace')
+  $('video-toggle').textContent = copy('play')
   XR8.addCameraPipelineModules([
     XR8.GlTextureRenderer.pipelineModule(),
     XR8.Threejs.pipelineModule(),
@@ -251,19 +288,19 @@ function start() {
     XR8.XrController.recenter()
     world.visible = false
     $('placement-hint').classList.remove('is-hidden')
-    $('video-toggle').textContent = 'Pokreni prizor i zvuk'
-    setStatus('Usmjeri kameru prema podu i dodirni novo mjesto za termopolij.')
+    $('video-toggle').textContent = copy('play')
+    setStatus(copy('replaceHint'))
   })
 
   $('video-toggle').addEventListener('click', async () => {
     if (!video || !world?.visible) {
-      setStatus('Najprije dodirni pod i postavi termopolij.')
+      setStatus(copy('first'))
       return
     }
     if (video.paused) await startLivingScene()
     else {
       video.pause()
-      $('video-toggle').textContent = 'Pokreni prizor i zvuk'
+      $('video-toggle').textContent = copy('play')
     }
   })
 }
