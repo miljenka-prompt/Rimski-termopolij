@@ -219,8 +219,8 @@
     </section>
 
     <section class="sources" data-mode-only="scientific">
-      <p class="section-label">Izvori · Sources · Quellen</p>
-      <h2>Carnuntum i trački kontekst</h2>
+      <p id="sourcesLabel" class="section-label">Izvori</p>
+      <h2 id="sourcesTitle">Izvori i referentni konteksti</h2>
       <ul>
         <li><a href="https://www.carnuntum.at/en/history/history" target="_blank" rel="noreferrer">Römerstadt Carnuntum — History</a></li>
         <li><a href="https://www.carnuntum.at/en/roman_city" target="_blank" rel="noreferrer">Römerstadt Carnuntum — Roman City</a></li>
@@ -255,6 +255,11 @@
       en: 'CARNUNTUM · LIVING LAYER',
       de: 'CARNUNTUM · LEBENDIGE SCHICHT'
     }
+    const sourceLabels = {
+      hr: { label: 'Izvori', title: 'Izvori i referentni konteksti' },
+      en: { label: 'Sources', title: 'Sources and reference contexts' },
+      de: { label: 'Quellen', title: 'Quellen und Referenzkontexte' }
+    }
     function apply() {
       document.documentElement.lang = language
       buttons.forEach((item) => item.classList.toggle('is-active', item.dataset.lang === language))
@@ -264,6 +269,8 @@
       modeToggle.setAttribute('aria-checked', String(mode === 'scientific'))
       modeLabel.textContent = modeLabels[language][mode]
       document.getElementById('brand').textContent = brandLabels[language]
+      document.getElementById('sourcesLabel').textContent = sourceLabels[language].label
+      document.getElementById('sourcesTitle').textContent = sourceLabels[language].title
     }
     buttons.forEach((button) => button.addEventListener('click', () => {
       language = button.dataset.lang
