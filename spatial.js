@@ -64,15 +64,13 @@ function livingMaterial(map) {
       varying vec2 vUv;
       void main() {
         vec4 color = texture2D(map, vUv);
+        vec2 edge = abs((vUv - .5) / .5);
+        float shape = pow(pow(edge.x, 6.) + pow(edge.y, 6.), 1. / 6.);
         float irregular = sin(vUv.x * 31. + sin(vUv.y * 17.)) * .025
                         + sin((vUv.x + vUv.y) * 43.) * .014;
-        // Content-shaped edge treatment: retain more of the left-hand figures
-        // and the counter, with a slightly wider dissolve over emptier upper
-        // corners. Separate edges avoid the look of a regular oval cut-out.
-        float leftEdge = smoothstep(-.01, .055 + irregular, vUv.x);
-        float rightEdge = 1. - smoothstep(.925 - irregular, 1.01, vUv.x);
-        float topEdge = 1. - smoothstep(.91 - irregular, 1.01, vUv.y);
-        float feather = leftEdge * rightEdge * topEdge;
+        // Keep Eumachus, the counter and the people immediately around it
+        // dense. Only the outer perimeter dissolves into the real room.
+        float feather = 1. - smoothstep(.74 + irregular, 1.02 + irregular, shape);
         // The source already ends at the figures' feet. Preserve virtually
         // all of that lower frame and soften only the terminal pixel strip.
         float floorBlend = smoothstep(0., .018, vUv.y);
