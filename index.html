@@ -26,7 +26,7 @@
     <video class="hero-video" src="https://miljenka-prompt.github.io/Rimski-termopolij/assets/Termopolij_sva%C4%91a1.mp4" autoplay muted loop playsinline aria-hidden="true"></video>
     <div class="hero-shade"></div>
     <nav>
-      <a class="brand" href="https://miljenka-prompt.github.io/Rimski-termopolij/">CARNUNTUM · ŽIVI SLOJ</a>
+      <a id="brand" class="brand" href="./">CARNUNTUM · ŽIVI SLOJ</a>
       <div class="nav-controls">
         <div class="languages" aria-label="Language">
           <button class="lang is-active" data-lang="hr" type="button">HR</button>
@@ -44,8 +44,8 @@
       <h1>Prostorni termopolij u stvarnom prostoru</h1>
       <p>Dodirnite pod i otvorite živu rimsku zalogajnicu u prostoru oko sebe — s ljudima, hranom, svađom i ambijentalnim zvukom.</p>
       <div class="actions">
-        <a class="primary" href="https://miljenka-prompt.github.io/Rimski-termopolij/spatial.html?lang=hr">Otvori prostorni prizor</a>
-        <a class="secondary" href="https://miljenka-prompt.github.io/Rimski-termopolij/marker.html">Otvori verziju s markerom</a>
+        <a class="primary" href="./spatial.html?lang=hr">Otvori prostorni prizor</a>
+        <a class="secondary" href="./marker.html?lang=hr">Otvori verziju s markerom</a>
       </div>
     </div>
 
@@ -54,8 +54,8 @@
       <h1>A spatial thermopolium in your real environment</h1>
       <p>Tap the floor and open a living Roman food shop around you — with people, food, an argument and the complete ambient soundscape.</p>
       <div class="actions">
-        <a class="primary" href="https://miljenka-prompt.github.io/Rimski-termopolij/spatial.html?lang=en">Open the spatial scene</a>
-        <a class="secondary" href="https://miljenka-prompt.github.io/Rimski-termopolij/marker.html">Open the marker version</a>
+        <a class="primary" href="./spatial.html?lang=en">Open the spatial scene</a>
+        <a class="secondary" href="./marker.html?lang=en">Open the marker version</a>
       </div>
     </div>
 
@@ -64,8 +64,8 @@
       <h1>Ein räumliches Thermopolium in Ihrer realen Umgebung</h1>
       <p>Tippen Sie auf den Boden und öffnen Sie eine belebte römische Garküche im Raum um sich — mit Menschen, Speisen, Streit und vollständiger Geräuschkulisse.</p>
       <div class="actions">
-        <a class="primary" href="https://miljenka-prompt.github.io/Rimski-termopolij/spatial.html?lang=de">Räumliche Szene öffnen</a>
-        <a class="secondary" href="https://miljenka-prompt.github.io/Rimski-termopolij/marker.html">Marker-Version öffnen</a>
+        <a class="primary" href="./spatial.html?lang=de">Räumliche Szene öffnen</a>
+        <a class="secondary" href="./marker.html?lang=de">Marker-Version öffnen</a>
       </div>
     </div>
   </header>
@@ -189,12 +189,18 @@
     const copies = document.querySelectorAll('.localized')
     const modeToggle = document.getElementById('modeToggle')
     const modeLabel = document.getElementById('modeLabel')
-    let language = localStorage.getItem('carnuntumLang') || 'hr'
-    let mode = localStorage.getItem('carnuntumMode') || 'scientific'
+    const params = new URLSearchParams(location.search)
+    let language = ['hr', 'en', 'de'].includes(params.get('lang')) ? params.get('lang') : (localStorage.getItem('carnuntumLang') || 'hr')
+    let mode = ['scientific', 'visitor'].includes(params.get('mode')) ? params.get('mode') : (localStorage.getItem('carnuntumMode') || 'scientific')
     const modeLabels = {
       hr: { scientific: 'Znanstvena verzija', visitor: 'Posjetiteljska verzija' },
       en: { scientific: 'Scientific', visitor: 'Visitor' },
       de: { scientific: 'Wissenschaftlich', visitor: 'Besucherfassung' }
+    }
+    const brandLabels = {
+      hr: 'CARNUNTUM · ŽIVI SLOJ',
+      en: 'CARNUNTUM · LIVING LAYER',
+      de: 'CARNUNTUM · LEBENDIGE SCHICHT'
     }
     function apply() {
       document.documentElement.lang = language
@@ -204,6 +210,7 @@
       modeToggle.dataset.mode = mode
       modeToggle.setAttribute('aria-checked', String(mode === 'scientific'))
       modeLabel.textContent = modeLabels[language][mode]
+      document.getElementById('brand').textContent = brandLabels[language]
     }
     buttons.forEach((button) => button.addEventListener('click', () => {
       language = button.dataset.lang

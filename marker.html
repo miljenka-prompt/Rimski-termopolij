@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.0/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin:0;overflow:hidden">
-  <a href="./" style="position:fixed;top:20px;left:20px;z-index:999;padding:14px 20px;border-radius:8px;background:#2b170dcc;color:#fff;text-decoration:none;font:700 15px/1.2 system-ui,-apple-system,sans-serif;border:1px solid #f0c58b66">← Projekt</a>
+  <a id="backLink" href="./" style="position:fixed;top:20px;left:20px;z-index:999;padding:14px 20px;border-radius:8px;background:#2b170dcc;color:#fff;text-decoration:none;font:700 15px/1.2 system-ui,-apple-system,sans-serif;border:1px solid #f0c58b66">← Projekt</a>
   <button id="playSound" style="position:fixed;top:20px;right:20px;z-index:999;padding:14px 20px;border-radius:8px;border:1px solid #f0c58b66;background:#2b170dcc;color:#fff;font:700 15px/1.2 system-ui,-apple-system,sans-serif">Pokreni zvuk</button>
   <video id="vid" src="./assets/Termopolij_svađa1.mp4" preload="auto" loop playsinline webkit-playsinline crossorigin="anonymous" style="display:none"></video>
   <a-scene embedded arjs="sourceType:webcam;debugUIEnabled:false">
@@ -17,6 +17,17 @@
   </a-scene>
   <div style="position:fixed;left:12px;right:12px;bottom:10px;z-index:998;padding:7px 10px;border-radius:8px;background:rgba(0,0,0,.48);color:#fff;font:12px/1.35 system-ui,-apple-system,sans-serif;text-align:center;pointer-events:none">Concept, authorship &amp; creative direction: Miljenka Ćurković · AI architecture &amp; development collaborator: ChatGPT — GPT-5.6 Sol (OpenAI)</div>
   <script>
+    const language = ['hr', 'en', 'de'].includes(new URLSearchParams(location.search).get('lang')) ? new URLSearchParams(location.search).get('lang') : 'hr'
+    const copy = {
+      hr: { back: '← Projekt', sound: 'Pokreni zvuk', title: 'Rimski termopolij · Marker AR' },
+      en: { back: '← Project', sound: 'Play sound', title: 'Roman thermopolium · Marker AR' },
+      de: { back: '← Projekt', sound: 'Ton starten', title: 'Römisches Thermopolium · Marker-AR' }
+    }[language]
+    document.documentElement.lang = language
+    document.title = copy.title
+    document.getElementById('backLink').textContent = copy.back
+    document.getElementById('backLink').href = `./?lang=${language}`
+    document.getElementById('playSound').textContent = copy.sound
     const video = document.getElementById('vid')
     document.getElementById('playSound').onclick = function () { video.muted = false; video.play(); this.style.display = 'none' }
     document.querySelector('a-marker').addEventListener('markerFound', () => video.play())

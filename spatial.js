@@ -16,7 +16,7 @@ const LANGUAGE = ['hr', 'en', 'de'].includes(new URLSearchParams(location.search
   : 'hr'
 const COPY = {
   hr: {
-    back: '← Projekt', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
+    back: '← Projekt', layer: 'CARNUNTUM · ŽIVI SLOJ', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
     intro: 'Usmjeri kameru prema podu i dodirni mjesto na kojem želiš otvoriti termopolij.',
     hint: 'Dodirni pod da se pojavi termopolij', replace: 'Postavi ponovno', play: 'Pokreni prizor i zvuk',
     pause: 'Pauziraj prizor', loadError: 'Prizor se nije učitao. Osvježi stranicu i pokušaj ponovno.',
@@ -24,7 +24,7 @@ const COPY = {
     replaceHint: 'Usmjeri kameru prema podu i dodirni novo mjesto za termopolij.', first: 'Najprije dodirni pod i postavi termopolij.'
   },
   en: {
-    back: '← Project', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
+    back: '← Project', layer: 'CARNUNTUM · LIVING LAYER', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
     intro: 'Point the camera at the floor and tap where you want to open the thermopolium.',
     hint: 'Tap the floor to reveal the thermopolium', replace: 'Place again', play: 'Play scene and sound',
     pause: 'Pause scene', loadError: 'The scene could not be loaded. Refresh the page and try again.',
@@ -32,7 +32,7 @@ const COPY = {
     replaceHint: 'Point the camera at the floor and tap a new position for the thermopolium.', first: 'Tap the floor to place the thermopolium first.'
   },
   de: {
-    back: '← Projekt', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
+    back: '← Projekt', layer: 'CARNUNTUM · LEBENDIGE SCHICHT', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
     intro: 'Richten Sie die Kamera auf den Boden und tippen Sie auf die Stelle, an der das Thermopolium erscheinen soll.',
     hint: 'Auf den Boden tippen, um das Thermopolium zu öffnen', replace: 'Neu platzieren', play: 'Szene und Ton starten',
     pause: 'Szene pausieren', loadError: 'Die Szene konnte nicht geladen werden. Aktualisieren Sie die Seite und versuchen Sie es erneut.',
@@ -264,6 +264,8 @@ const spatialModule = () => ({
 function start() {
   document.documentElement.lang = LANGUAGE
   $('back-link').textContent = copy('back')
+  $('back-link').href = `./?lang=${LANGUAGE}`
+  $('mode-label').textContent = copy('layer')
   $('scene-title').textContent = copy('title')
   $('status').textContent = copy('intro')
   $('placement-hint').textContent = copy('hint')
