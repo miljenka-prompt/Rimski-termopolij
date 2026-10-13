@@ -14,7 +14,6 @@ const FADE_IN_END = 1.15
 
 let world = null
 let livingScene = null
-let romanFloor = null
 let video = null
 let xrCamera = null
 let statusTimer = null
@@ -69,12 +68,12 @@ function livingMaterial(map) {
         float shape = pow(pow(edge.x, 6.) + pow(edge.y, 6.), 1. / 6.);
         float irregular = sin(vUv.x * 31. + sin(vUv.y * 17.)) * .025
                         + sin((vUv.x + vUv.y) * 43.) * .014;
-        // A long, irregular dissolve keeps the centre legible while letting
-        // walls, steps and floor of the real room show through at the margins.
-        float feather = 1. - smoothstep(.48 + irregular, 1. + irregular, shape);
-        // Keep feet and the available lower frame; dissolve only the last
-        // narrow strip into the real floor.
-        float floorBlend = smoothstep(.005, .075, vUv.y);
+        // Keep Eumachus, the counter and the people immediately around it
+        // dense. Only the outer perimeter dissolves into the real room.
+        float feather = 1. - smoothstep(.74 + irregular, 1.02 + irregular, shape);
+        // The source already ends at the figures' feet. Preserve virtually
+        // all of that lower frame and soften only the terminal pixel strip.
+        float floorBlend = smoothstep(0., .018, vUv.y);
         float alpha = opacity * feather * floorBlend;
         if (alpha < .012) discard;
         gl_FragColor = vec4(color.rgb, alpha);
@@ -98,46 +97,6 @@ function curvePlane(geometry, strength = .085) {
   return geometry
 }
 
-function romanFloorTexture() {
-  const canvas = document.createElement('canvas')
-  canvas.width = 768
-  canvas.height = 512
-  const context = canvas.getContext('2d')
-
-  context.fillStyle = '#76634d'
-  context.fillRect(0, 0, canvas.width, canvas.height)
-
-  const rows = 7
-  const rowHeight = canvas.height / rows
-  for (let row = 0; row < rows; row += 1) {
-    const offset = row % 2 ? -58 : 0
-    for (let column = -1; column < 7; column += 1) {
-      const x = offset + column * 128
-      const y = row * rowHeight
-      const warmth = (row * 17 + column * 23 + 30) % 34
-      context.fillStyle = `rgb(${126 + warmth}, ${108 + Math.floor(warmth * .65)}, ${78 + Math.floor(warmth * .4)})`
-      context.fillRect(x + 3, y + 3, 122, rowHeight - 6)
-      context.strokeStyle = 'rgba(48, 37, 27, .5)'
-      context.lineWidth = 3
-      context.strokeRect(x + 2, y + 2, 124, rowHeight - 4)
-    }
-  }
-
-  const fade = context.createRadialGradient(384, 210, 95, 384, 245, 430)
-  fade.addColorStop(0, 'rgba(255,255,255,1)')
-  fade.addColorStop(.58, 'rgba(255,255,255,.92)')
-  fade.addColorStop(1, 'rgba(255,255,255,0)')
-  context.globalCompositeOperation = 'destination-in'
-  context.fillStyle = fade
-  context.fillRect(0, 0, canvas.width, canvas.height)
-
-  const texture = new THREE.CanvasTexture(canvas)
-  texture.colorSpace = THREE.SRGBColorSpace
-  texture.minFilter = THREE.LinearFilter
-  texture.magFilter = THREE.LinearFilter
-  return texture
-}
-
 function build(scene) {
   world = new THREE.Group()
   world.visible = false
@@ -157,24 +116,6 @@ function build(scene) {
   livingScene.position.set(0, SCENE_HEIGHT / 2, 0)
   livingScene.renderOrder = 2
   world.add(livingScene)
-
-  // The source is square. Keep its physical dimensions fixed from the first
-  // rendered frame so metadata loading cannot make the scene visibly jump.
-  romanFloor = new THREE.Mesh(
-    new THREE.PlaneGeometry(SCENE_WIDTH * 1.24, 1.72),
-    new THREE.MeshBasicMaterial({
-      map: romanFloorTexture(),
-      transparent: true,
-      opacity: .78,
-      depthWrite: false,
-      side: THREE.DoubleSide,
-      toneMapped: false,
-    })
-  )
-  romanFloor.rotation.x = -Math.PI / 2
-  romanFloor.position.set(0, .012, .72)
-  romanFloor.renderOrder = 1
-  world.add(romanFloor)
 
   video.addEventListener('error', () => {
     setStatus('Prizor se nije učitao. Osvježi stranicu i pokušaj ponovno.')
@@ -198,7 +139,6 @@ function updateTemporalBlend() {
 
   if (time >= LOOP_AT) {
     material.uniforms.opacity.value = 0
-    if (romanFloor) romanFloor.material.opacity = 0
     video.currentTime = 0
     return
   }
@@ -210,7 +150,6 @@ function updateTemporalBlend() {
   } else {
     material.uniforms.opacity.value = 1
   }
-  if (romanFloor) romanFloor.material.opacity = .78 * material.uniforms.opacity.value
 }
 
 async function startLivingScene() {
@@ -280,10 +219,6 @@ const spatialModule = () => ({
       xrCamera.position.z - scenePosition.z
     )
     livingScene.rotation.set(0, yaw, 0)
-    if (romanFloor) {
-      romanFloor.rotation.set(-Math.PI / 2, yaw, 0, 'YXZ')
-      romanFloor.position.set(Math.sin(yaw) * .72, .012, Math.cos(yaw) * .72)
-    }
   },
 })
 
