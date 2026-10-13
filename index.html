@@ -11,13 +11,13 @@
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#130c08;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.58}
     .hero{position:relative;min-height:88svh;display:flex;align-items:flex-end;overflow:hidden;padding:clamp(110px,18vh,180px) max(22px,7vw) clamp(54px,8vw,90px)}
     .hero-video,.hero-shade{position:absolute;inset:0;width:100%;height:100%}.hero-video{object-fit:cover;filter:saturate(.78) contrast(1.04)}.hero-shade{background:linear-gradient(180deg,rgba(15,8,5,.35),rgba(15,8,5,.52) 42%,rgba(15,8,5,.98))}
-    nav{position:absolute;z-index:2;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) max(18px,5vw);gap:18px}.brand{color:#fff;text-decoration:none;font-size:.74rem;font-weight:850;letter-spacing:.14em}.languages{display:flex;gap:5px}.lang{border:1px solid var(--line);background:rgba(25,12,7,.58);color:var(--muted);border-radius:999px;padding:.48rem .65rem;font-weight:800;cursor:pointer}.lang.is-active{background:var(--ink);color:#24150d}
+    nav{position:absolute;z-index:2;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:max(18px,env(safe-area-inset-top)) max(18px,5vw);gap:18px}.brand{color:#fff;text-decoration:none;font-size:.74rem;font-weight:850;letter-spacing:.14em}.nav-controls,.languages{display:flex;align-items:center;gap:5px}.lang,.mode-toggle{border:1px solid var(--line);background:rgba(25,12,7,.58);color:var(--muted);border-radius:999px;padding:.48rem .65rem;font-weight:800;cursor:pointer}.lang.is-active{background:var(--ink);color:#24150d}.mode-toggle{display:flex;align-items:center;gap:.46rem;margin-left:6px;padding-left:.72rem}.mode-track{position:relative;width:36px;height:20px;border-radius:999px;background:rgba(255,255,255,.17)}.mode-knob{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:#f0b879;transition:transform .2s}.mode-toggle[data-mode="scientific"] .mode-knob{transform:translateX(16px)}
     .hero-copy{position:relative;z-index:1;width:min(840px,100%)}.eyebrow,.section-label{margin:0 0 12px;color:#f0b879;font-size:.74rem;font-weight:850;letter-spacing:.14em;text-transform:uppercase}.hero h1{max-width:780px;margin:0;font-family:Georgia,serif;font-size:clamp(2.5rem,7vw,6.3rem);line-height:.95;letter-spacing:-.045em}.hero-copy>p:not(.eyebrow){max-width:680px;margin:24px 0 0;color:#e6d8c8;font-size:clamp(1rem,2vw,1.28rem)}
     .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}.actions a{padding:.92rem 1.2rem;border-radius:999px;text-decoration:none;font-weight:800}.primary{background:var(--ink);color:#24150d}.secondary{border:1px solid var(--line);background:rgba(37,19,11,.62);color:#fff;backdrop-filter:blur(10px)}
     main{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:70px 0 90px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.grid article,.sources{padding:clamp(24px,4vw,44px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(70,39,22,.38),rgba(27,15,9,.75))}.grid .note{grid-column:1/-1}.grid h2,.sources h2{margin:0 0 14px;font-family:Georgia,serif;font-size:clamp(1.6rem,3vw,2.5rem);line-height:1.08}.grid p:not(.section-label){margin:0;color:var(--muted)}
     .sources{margin-top:18px}.sources ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;margin:24px 0 0;padding-left:1.2rem}.sources a{color:#f0c28e;text-underline-offset:3px}
     footer{padding:20px max(18px,5vw);border-top:1px solid var(--line);color:#a99785;font-size:.78rem;text-align:center}[hidden]{display:none!important}
-    @media(max-width:720px){.hero{min-height:92svh;padding-left:20px;padding-right:20px}.grid,.sources ul{grid-template-columns:1fr}.grid .note{grid-column:auto}.brand{max-width:180px}.hero h1{font-size:clamp(2.55rem,13vw,4.4rem)}}
+    @media(max-width:720px){.hero{min-height:92svh;padding-left:20px;padding-right:20px}.grid,.sources ul{grid-template-columns:1fr}.grid .note{grid-column:auto}.brand{max-width:122px}.nav-controls{flex-wrap:wrap;justify-content:flex-end}.mode-toggle{margin-left:0;font-size:.68rem}.hero h1{font-size:clamp(2.55rem,13vw,4.4rem)}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-video{display:none}}
   </style>
 </head>
@@ -27,10 +27,15 @@
     <div class="hero-shade"></div>
     <nav>
       <a class="brand" href="https://miljenka-prompt.github.io/Rimski-termopolij/">CARNUNTUM · ŽIVI SLOJ</a>
-      <div class="languages" aria-label="Language">
-        <button class="lang is-active" data-lang="hr" type="button">HR</button>
-        <button class="lang" data-lang="en" type="button">EN</button>
-        <button class="lang" data-lang="de" type="button">DE</button>
+      <div class="nav-controls">
+        <div class="languages" aria-label="Language">
+          <button class="lang is-active" data-lang="hr" type="button">HR</button>
+          <button class="lang" data-lang="en" type="button">EN</button>
+          <button class="lang" data-lang="de" type="button">DE</button>
+        </div>
+        <button id="modeToggle" class="mode-toggle" data-mode="scientific" type="button" role="switch" aria-checked="true">
+          <span id="modeLabel">Znanstvena verzija</span><span class="mode-track" aria-hidden="true"><span class="mode-knob"></span></span>
+        </button>
       </div>
     </nav>
 
@@ -66,7 +71,7 @@
   </header>
 
   <main>
-    <section class="localized grid" data-copy="hr">
+    <section class="localized grid" data-copy="hr" data-mode="visitor" hidden>
       <article>
         <p class="section-label">Povijesni okvir</p>
         <h2>Carnuntum nije bio kulisa nego grad</h2>
@@ -84,7 +89,7 @@
       </article>
     </section>
 
-    <section class="localized grid" data-copy="en" hidden>
+    <section class="localized grid" data-copy="en" data-mode="visitor" hidden>
       <article>
         <p class="section-label">Historical setting</p>
         <h2>Carnuntum was a city, not a backdrop</h2>
@@ -102,7 +107,7 @@
       </article>
     </section>
 
-    <section class="localized grid" data-copy="de" hidden>
+    <section class="localized grid" data-copy="de" data-mode="visitor" hidden>
       <article>
         <p class="section-label">Historischer Rahmen</p>
         <h2>Carnuntum war eine Stadt, keine Kulisse</h2>
@@ -120,7 +125,51 @@
       </article>
     </section>
 
-    <section class="sources">
+    <section class="localized grid" data-copy="hr" data-mode="scientific">
+      <article>
+        <p class="section-label">Baza dokaza</p>
+        <h2>Grad, promet i prostori hrane</h2>
+        <p>Carnuntum se razvio na Dunavskom limesu i Jantarnom putu, s vojnim kompleksom i velikim civilnim gradom. Arheološka prospekcija uz cestu prema amfiteatru prepoznaje gostionice i taverne. Demo se oslanja na taj dokumentirani urbani kontekst, ali ne tvrdi da prikazuje određeni iskopani termopolij iz Carnuntuma.</p>
+      </article>
+      <article>
+        <p class="section-label">Tipološka rekonstrukcija</p>
+        <h2>Šank je rimski tip prostora, ne digitalni preslik</h2>
+        <p>Prodajni pult, posude, hrana i zbijena društvena scena oblikovani su prema široko dokumentiranoj tipologiji rimskih prostora za prodaju hrane i pića. Njihov točan raspored, boje, namirnice i gustoća ljudi u ovom prizoru izvedbene su odluke, a ne arheološki plan jednog lokala u Carnuntumu.</p>
+      </article>
+      <article>
+        <p class="section-label">Kompozitni interpretativni lik</p>
+        <h2>Eumachus nije identificirana povijesna osoba</h2>
+        <p>Tračko podrijetlo oslanja se na dokumentiranu mobilnost Tračana unutar Rimskog Carstva. Status oslobođenika i tabernarija povijesno je moguć, ali Eumachusovo sitnoplemićko podrijetlo prije ropstva, relativna pismenost, dodir s helenističkim obrazovanjem, samopercepcija i gorčina narativni su elementi kompozitnog lika. Ime nije prosopografska identifikacija osobe iz Carnuntuma.</p>
+      </article>
+      <article>
+        <p class="section-label">Govor i zvuk</p>
+        <h2>Izvedba društvene prisutnosti</h2>
+        <p>Svađa, povici, geste i ambijentalni zvuk vraćaju osjećaj naseljenog prostora. Govor je stilizirana izvedba kolokvijalnog latiniteta, ne sačuvani transkript niti tvrdnja o točnom izgovoru u Carnuntumu 2. stoljeća. Konkretan događaj i osobe u prizoru autorska su narativna rekonstrukcija.</p>
+      </article>
+      <article class="note">
+        <p class="section-label">Metodološki status</p>
+        <h2>Dokumentirano · analogija · interpretacija</h2>
+        <p><strong>Dokumentirano:</strong> urbani i prometni položaj Carnuntuma te gostionice i taverne u njegovu arheološkom kontekstu. <strong>Tipološki analog:</strong> rimski prostori prodaje hrane i pića poznati s drugih lokaliteta. <strong>Interpretirano:</strong> Eumachusova biografija, izgled ljudi, konkretan interijer, hrana, dijalog, ponašanje i događaj. Vizual nije arheološki sken, nego autorski vođena digitalna rekonstrukcija za WebAR.</p>
+      </article>
+    </section>
+
+    <section class="localized grid" data-copy="en" data-mode="scientific" hidden>
+      <article><p class="section-label">Evidence base</p><h2>City, mobility and food premises</h2><p>Carnuntum developed on the Danube Limes and the Amber Road, with a military complex and a major civilian city. Archaeological prospection along the road to the amphitheatre identifies inns and taverns. The demo draws on this documented urban setting but does not claim to depict one specific excavated thermopolium at Carnuntum.</p></article>
+      <article><p class="section-label">Typological reconstruction</p><h2>A Roman type of space, not a digital replica</h2><p>The counter, vessels, food and crowded social scene follow the broadly documented typology of Roman food-and-drink premises. Their exact arrangement, colours, foods and number of people are performance choices rather than the archaeological plan of one establishment at Carnuntum.</p></article>
+      <article><p class="section-label">Composite interpretive character</p><h2>Eumachus is not an identified historical person</h2><p>His Thracian origin is grounded in documented Thracian mobility across the Roman Empire. A freedman and tabernarius is historically possible, but his minor-aristocratic origin before enslavement, relative literacy, contact with Hellenistic learning, self-image and bitterness are narrative components. His name is not a prosopographical identification from Carnuntum.</p></article>
+      <article><p class="section-label">Speech and sound</p><h2>A performance of social presence</h2><p>The argument, calls, gestures and ambient sound restore a sense of an inhabited space. The speech is a stylised performance of colloquial Latin, not a preserved transcript or a claim about exact second-century pronunciation at Carnuntum. The event and the people shown are authorial narrative reconstruction.</p></article>
+      <article class="note"><p class="section-label">Methodological status</p><h2>Documented · analogous · interpreted</h2><p><strong>Documented:</strong> Carnuntum’s urban and transport setting and inns and taverns in its archaeological context. <strong>Typological analogue:</strong> Roman food-and-drink premises known from other sites. <strong>Interpreted:</strong> Eumachus’s biography, individual appearances, the precise interior, food, dialogue, behaviour and event. The visual is not an archaeological scan but an authorially directed digital reconstruction for WebAR.</p></article>
+    </section>
+
+    <section class="localized grid" data-copy="de" data-mode="scientific" hidden>
+      <article><p class="section-label">Quellenbasis</p><h2>Stadt, Verkehr und Gastronomieräume</h2><p>Carnuntum entwickelte sich am Donaulimes und an der Bernsteinstraße mit einem Militärkomplex und einer bedeutenden Zivilstadt. Archäologische Prospektionen entlang der Straße zum Amphitheater weisen Gasthäuser und Tavernen nach. Das Demo stützt sich auf diesen dokumentierten Stadtkontext, behauptet jedoch nicht, ein bestimmtes ausgegrabenes Thermopolium in Carnuntum darzustellen.</p></article>
+      <article><p class="section-label">Typologische Rekonstruktion</p><h2>Ein römischer Raumtyp, keine digitale Kopie</h2><p>Verkaufstheke, Gefäße, Speisen und die dichte soziale Szene folgen der allgemein dokumentierten Typologie römischer Verkaufsräume für Speisen und Getränke. Ihre genaue Anordnung, Farben, Speisen und Personenzahl sind inszenatorische Entscheidungen und kein archäologischer Grundriss eines einzelnen Lokals in Carnuntum.</p></article>
+      <article><p class="section-label">Interpretative Kompositfigur</p><h2>Eumachus ist keine identifizierte historische Person</h2><p>Seine thrakische Herkunft beruht auf der dokumentierten Mobilität von Thrakern im Römischen Reich. Ein Freigelassener und tabernarius ist historisch möglich; seine kleinadelige Herkunft vor der Versklavung, relative Bildung, Berührung mit hellenistischer Gelehrsamkeit, sein Selbstbild und seine Verbitterung sind jedoch narrative Bestandteile. Der Name ist keine prosopographische Identifizierung aus Carnuntum.</p></article>
+      <article><p class="section-label">Sprache und Klang</p><h2>Inszenierte soziale Präsenz</h2><p>Streit, Rufe, Gesten und Umgebungsgeräusche vermitteln einen belebten Raum. Die Sprache ist eine stilisierte Darbietung umgangssprachlichen Lateins, kein überliefertes Transkript und keine Behauptung über die exakte Aussprache im Carnuntum des 2. Jahrhunderts. Ereignis und Personen sind eine autorschaftliche narrative Rekonstruktion.</p></article>
+      <article class="note"><p class="section-label">Methodischer Status</p><h2>Dokumentiert · analog · interpretiert</h2><p><strong>Dokumentiert:</strong> Carnuntums städtische und verkehrsgeographische Lage sowie Gasthäuser und Tavernen im archäologischen Kontext. <strong>Typologisches Analogon:</strong> römische Speise- und Getränkelokale anderer Fundorte. <strong>Interpretiert:</strong> Eumachus’ Biographie, das Aussehen der Personen, der konkrete Innenraum, Speisen, Dialog, Verhalten und Ereignis. Das Bild ist kein archäologischer Scan, sondern eine autorschaftlich geleitete digitale WebAR-Rekonstruktion.</p></article>
+    </section>
+
+    <section class="sources" data-mode-only="scientific">
       <p class="section-label">Izvori · Sources · Quellen</p>
       <h2>Carnuntum i trački kontekst</h2>
       <ul>
@@ -138,12 +187,35 @@
   <script>
     const buttons = document.querySelectorAll('.lang')
     const copies = document.querySelectorAll('.localized')
-    buttons.forEach((button) => button.addEventListener('click', () => {
-      const language = button.dataset.lang
+    const modeToggle = document.getElementById('modeToggle')
+    const modeLabel = document.getElementById('modeLabel')
+    let language = localStorage.getItem('carnuntumLang') || 'hr'
+    let mode = localStorage.getItem('carnuntumMode') || 'scientific'
+    const modeLabels = {
+      hr: { scientific: 'Znanstvena verzija', visitor: 'Posjetiteljska verzija' },
+      en: { scientific: 'Scientific', visitor: 'Visitor' },
+      de: { scientific: 'Wissenschaftlich', visitor: 'Besucherfassung' }
+    }
+    function apply() {
       document.documentElement.lang = language
-      buttons.forEach((item) => item.classList.toggle('is-active', item === button))
-      copies.forEach((copy) => { copy.hidden = copy.dataset.copy !== language })
+      buttons.forEach((item) => item.classList.toggle('is-active', item.dataset.lang === language))
+      copies.forEach((copy) => { copy.hidden = copy.dataset.copy !== language || (copy.dataset.mode && copy.dataset.mode !== mode) })
+      document.querySelectorAll('[data-mode-only]').forEach((item) => { item.hidden = item.dataset.modeOnly !== mode })
+      modeToggle.dataset.mode = mode
+      modeToggle.setAttribute('aria-checked', String(mode === 'scientific'))
+      modeLabel.textContent = modeLabels[language][mode]
+    }
+    buttons.forEach((button) => button.addEventListener('click', () => {
+      language = button.dataset.lang
+      localStorage.setItem('carnuntumLang', language)
+      apply()
     }))
+    modeToggle.addEventListener('click', () => {
+      mode = mode === 'scientific' ? 'visitor' : 'scientific'
+      localStorage.setItem('carnuntumMode', mode)
+      apply()
+    })
+    apply()
   </script>
 </body>
 </html>
