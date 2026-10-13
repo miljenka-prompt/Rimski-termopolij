@@ -16,8 +16,9 @@
     .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}.actions a{padding:.92rem 1.2rem;border-radius:999px;text-decoration:none;font-weight:800}.primary{background:var(--ink);color:#24150d}.secondary{border:1px solid var(--line);background:rgba(37,19,11,.62);color:#fff;backdrop-filter:blur(10px)}
     main{width:min(1180px,calc(100% - 36px));margin:0 auto;padding:70px 0 90px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.grid article,.sources{padding:clamp(24px,4vw,44px);border:1px solid var(--line);border-radius:22px;background:linear-gradient(145deg,rgba(70,39,22,.38),rgba(27,15,9,.75))}.grid .note{grid-column:1/-1}.grid h2,.sources h2{margin:0 0 14px;font-family:Georgia,serif;font-size:clamp(1.6rem,3vw,2.5rem);line-height:1.08}.grid p:not(.section-label){margin:0;color:var(--muted)}
     .sources{margin-top:18px}.sources ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;margin:24px 0 0;padding-left:1.2rem}.sources a{color:#f0c28e;text-underline-offset:3px}
+    .character{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);margin:18px 0;padding:0;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:linear-gradient(145deg,rgba(70,39,22,.38),rgba(27,15,9,.75))}.character figure{position:relative;min-height:390px;margin:0;background:#21130c}.character img{display:block;width:100%;height:100%;min-height:390px;object-fit:cover}.character-copy{align-self:center;padding:clamp(26px,5vw,54px)}.character-copy h2{margin:0 0 14px;font-family:Georgia,serif;font-size:clamp(1.7rem,3vw,2.65rem);line-height:1.08}.character-copy p:not(.section-label){margin:0;color:var(--muted)}.locator{position:absolute;left:19%;top:45%;display:flex;align-items:center;gap:8px;transform:translate(-9px,-9px);filter:drop-shadow(0 2px 8px #000)}.locator-dot{width:18px;height:18px;border:3px solid #fff;border-radius:50%;background:#d77739;box-shadow:0 0 0 6px rgba(215,119,57,.28)}.locator-label{padding:.3rem .58rem;border-radius:999px;background:rgba(28,14,8,.88);color:#fff;font-size:.75rem;font-weight:850;letter-spacing:.05em}
     footer{padding:20px max(18px,5vw);border-top:1px solid var(--line);color:#a99785;font-size:.78rem;text-align:center}[hidden]{display:none!important}
-    @media(max-width:720px){.hero{min-height:92svh;padding-left:20px;padding-right:20px}.grid,.sources ul{grid-template-columns:1fr}.grid .note{grid-column:auto}.brand{max-width:122px}.nav-controls{flex-wrap:wrap;justify-content:flex-end}.mode-toggle{margin-left:0;font-size:.68rem}.hero h1{font-size:clamp(2.55rem,13vw,4.4rem)}}
+    @media(max-width:720px){.hero{min-height:92svh;padding-left:20px;padding-right:20px}.grid,.sources ul,.character{grid-template-columns:1fr}.grid .note{grid-column:auto}.character figure,.character img{min-height:310px}.brand{max-width:122px}.nav-controls{flex-wrap:wrap;justify-content:flex-end}.mode-toggle{margin-left:0;font-size:.68rem}.hero h1{font-size:clamp(2.55rem,13vw,4.4rem)}}
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hero-video{display:none}}
   </style>
 </head>
@@ -82,6 +83,11 @@
         <h2>Eumachus, libertinus i tabernarius</h2>
         <p>Eumachus je kompozitni interpretativni lik tračkog podrijetla: oslobođenik, razmjerno pismen, dotaknut helenističkim obrazovanjem i trajno ogorčen raskorakom između vlastite slike o sebi i društvenog položaja. Nije identificirana povijesna osoba, nego narativni vodič sastavljen iz dokumentiranih društvenih obrazaca rimskoga svijeta.</p>
       </article>
+      <article>
+        <p class="section-label">Za šankom</p>
+        <h2>Što se moglo jesti i piti?</h2>
+        <p>Kruh, pogače i kaše od žitarica bili su temelj prehrane, uz leću, grašak i bob. U Carnuntumu su se jeli govedina, svinjetina, ovčetina, perad, riječna riba, školjke i puževi, ali ne svima jednako često. Pilo se lokalno ili uvozno vino, uglavnom pomiješano s vodom. Prikazane namirnice nisu jelovnik jednoga pronađenog lokala, nego povijesno moguća ponuda gradskog prostora za hranu i piće.</p>
+      </article>
       <article class="note">
         <p class="section-label">Metoda</p>
         <h2>Što je rekonstruirano, a što interpretirano?</h2>
@@ -99,6 +105,11 @@
         <p class="section-label">Composite character</p>
         <h2>Eumachus, libertinus and tabernarius</h2>
         <p>Eumachus is a composite interpretive character of Thracian origin: a freedman, relatively literate, touched by Hellenistic learning, and embittered by the distance between his self-image and his social position. He is not an identified historical person, but a narrative guide assembled from documented social patterns of the Roman world.</p>
+      </article>
+      <article>
+        <p class="section-label">At the counter</p>
+        <h2>What might people eat and drink?</h2>
+        <p>Bread, flatbread and grain porridge formed the basis of the diet, alongside lentils, peas and field beans. Beef, pork, mutton, poultry, river fish, mussels and snails were eaten at Carnuntum, though not equally often by everyone. Local or imported wine was usually mixed with water. The foods shown are not the menu of one excavated establishment, but a historically plausible selection for an urban food-and-drink venue.</p>
       </article>
       <article class="note">
         <p class="section-label">Method</p>
@@ -118,6 +129,11 @@
         <h2>Eumachus, libertinus und tabernarius</h2>
         <p>Eumachus ist eine interpretative Kompositfigur thrakischer Herkunft: ein Freigelassener, vergleichsweise gebildet, von hellenistischer Bildung geprägt und verbittert über die Kluft zwischen seinem Selbstbild und seiner gesellschaftlichen Stellung. Er ist keine identifizierte historische Person, sondern wurde aus dokumentierten sozialen Mustern der römischen Welt zusammengesetzt.</p>
       </article>
+      <article>
+        <p class="section-label">An der Theke</p>
+        <h2>Was konnte man essen und trinken?</h2>
+        <p>Brot, Fladenbrot und Getreidebrei bildeten zusammen mit Linsen, Erbsen und Ackerbohnen die Grundlage der Ernährung. In Carnuntum wurden Rind, Schwein, Schaf, Geflügel, Flussfisch, Muscheln und Schnecken gegessen — jedoch nicht von allen gleich häufig. Lokaler oder importierter Wein wurde meist mit Wasser gemischt. Die dargestellten Speisen sind nicht die Speisekarte eines ausgegrabenen Lokals, sondern eine historisch plausible Auswahl für einen städtischen Speise- und Getränkeraum.</p>
+      </article>
       <article class="note">
         <p class="section-label">Methode</p>
         <h2>Rekonstruktion oder Interpretation?</h2>
@@ -135,6 +151,11 @@
         <p class="section-label">Tipološka rekonstrukcija</p>
         <h2>Šank je rimski tip prostora, ne digitalni preslik</h2>
         <p>Prodajni pult, posude, hrana i zbijena društvena scena oblikovani su prema široko dokumentiranoj tipologiji rimskih prostora za prodaju hrane i pića. Njihov točan raspored, boje, namirnice i gustoća ljudi u ovom prizoru izvedbene su odluke, a ne arheološki plan jednog lokala u Carnuntumu.</p>
+      </article>
+      <article>
+        <p class="section-label">Hrana i piće</p>
+        <h2>Carnuntumski nalazi, tipološka interpretacija</h2>
+        <p>Arheobotanički i arheozoološki nalazi iz Carnuntuma potvrđuju različite žitarice i mahunarke te goveda, svinje, ovce, perad, riječnu ribu, školjke i puževe. Nalazi sjemenki grožđa, vinogradarskog alata i amfora potvrđuju potrošnju, lokalni uzgoj i uvoz vina. Međutim, nije poznat inventar jednoga termopolija koji bi odgovarao ovom prizoru. Pult s ugrađenim posudama tipološka je analogija s drugih rimskih lokaliteta, osobito Pompeja.</p>
       </article>
       <article>
         <p class="section-label">Kompozitni interpretativni lik</p>
@@ -156,6 +177,7 @@
     <section class="localized grid" data-copy="en" data-mode="scientific" hidden>
       <article><p class="section-label">Evidence base</p><h2>City, mobility and food premises</h2><p>Carnuntum developed on the Danube Limes and the Amber Road, with a military complex and a major civilian city. Archaeological prospection along the road to the amphitheatre identifies inns and taverns. The demo draws on this documented urban setting but does not claim to depict one specific excavated thermopolium at Carnuntum.</p></article>
       <article><p class="section-label">Typological reconstruction</p><h2>A Roman type of space, not a digital replica</h2><p>The counter, vessels, food and crowded social scene follow the broadly documented typology of Roman food-and-drink premises. Their exact arrangement, colours, foods and number of people are performance choices rather than the archaeological plan of one establishment at Carnuntum.</p></article>
+      <article><p class="section-label">Food and drink</p><h2>Carnuntum evidence, typological interpretation</h2><p>Archaeobotanical and archaeozoological evidence from Carnuntum documents several grains and pulses as well as cattle, pigs, sheep, poultry, river fish, mussels and snails. Grape seeds, viticultural tools and amphorae attest consumption, local cultivation and wine imports. No inventory is known from a single thermopolium corresponding to this scene. The counter with embedded vessels is a typological analogy drawn from other Roman sites, especially Pompeii.</p></article>
       <article><p class="section-label">Composite interpretive character</p><h2>Eumachus is not an identified historical person</h2><p>His Thracian origin is grounded in documented Thracian mobility across the Roman Empire. A freedman and tabernarius is historically possible, but his minor-aristocratic origin before enslavement, relative literacy, contact with Hellenistic learning, self-image and bitterness are narrative components. His name is not a prosopographical identification from Carnuntum.</p></article>
       <article><p class="section-label">Speech and sound</p><h2>A performance of social presence</h2><p>The argument, calls, gestures and ambient sound restore a sense of an inhabited space. The speech is a stylised performance of colloquial Latin, not a preserved transcript or a claim about exact second-century pronunciation at Carnuntum. The event and the people shown are authorial narrative reconstruction.</p></article>
       <article class="note"><p class="section-label">Methodological status</p><h2>Documented · analogous · interpreted</h2><p><strong>Documented:</strong> Carnuntum’s urban and transport setting and inns and taverns in its archaeological context. <strong>Typological analogue:</strong> Roman food-and-drink premises known from other sites. <strong>Interpreted:</strong> Eumachus’s biography, individual appearances, the precise interior, food, dialogue, behaviour and event. The visual is not an archaeological scan but an authorially directed digital reconstruction for WebAR.</p></article>
@@ -164,9 +186,36 @@
     <section class="localized grid" data-copy="de" data-mode="scientific" hidden>
       <article><p class="section-label">Quellenbasis</p><h2>Stadt, Verkehr und Gastronomieräume</h2><p>Carnuntum entwickelte sich am Donaulimes und an der Bernsteinstraße mit einem Militärkomplex und einer bedeutenden Zivilstadt. Archäologische Prospektionen entlang der Straße zum Amphitheater weisen Gasthäuser und Tavernen nach. Das Demo stützt sich auf diesen dokumentierten Stadtkontext, behauptet jedoch nicht, ein bestimmtes ausgegrabenes Thermopolium in Carnuntum darzustellen.</p></article>
       <article><p class="section-label">Typologische Rekonstruktion</p><h2>Ein römischer Raumtyp, keine digitale Kopie</h2><p>Verkaufstheke, Gefäße, Speisen und die dichte soziale Szene folgen der allgemein dokumentierten Typologie römischer Verkaufsräume für Speisen und Getränke. Ihre genaue Anordnung, Farben, Speisen und Personenzahl sind inszenatorische Entscheidungen und kein archäologischer Grundriss eines einzelnen Lokals in Carnuntum.</p></article>
+      <article><p class="section-label">Speisen und Getränke</p><h2>Befunde aus Carnuntum, typologische Interpretation</h2><p>Archäobotanische und archäozoologische Befunde aus Carnuntum belegen verschiedene Getreide und Hülsenfrüchte sowie Rinder, Schweine, Schafe, Geflügel, Flussfische, Muscheln und Schnecken. Traubenkerne, Weinbaugeräte und Amphoren bezeugen Konsum, lokalen Anbau und Weinimporte. Ein Inventar aus einem einzelnen Thermopolium, das dieser Szene entspräche, ist jedoch nicht bekannt. Die Theke mit eingelassenen Gefäßen ist eine typologische Analogie zu anderen römischen Fundorten, insbesondere Pompeji.</p></article>
       <article><p class="section-label">Interpretative Kompositfigur</p><h2>Eumachus ist keine identifizierte historische Person</h2><p>Seine thrakische Herkunft beruht auf der dokumentierten Mobilität von Thrakern im Römischen Reich. Ein Freigelassener und tabernarius ist historisch möglich; seine kleinadelige Herkunft vor der Versklavung, relative Bildung, Berührung mit hellenistischer Gelehrsamkeit, sein Selbstbild und seine Verbitterung sind jedoch narrative Bestandteile. Der Name ist keine prosopographische Identifizierung aus Carnuntum.</p></article>
       <article><p class="section-label">Sprache und Klang</p><h2>Inszenierte soziale Präsenz</h2><p>Streit, Rufe, Gesten und Umgebungsgeräusche vermitteln einen belebten Raum. Die Sprache ist eine stilisierte Darbietung umgangssprachlichen Lateins, kein überliefertes Transkript und keine Behauptung über die exakte Aussprache im Carnuntum des 2. Jahrhunderts. Ereignis und Personen sind eine autorschaftliche narrative Rekonstruktion.</p></article>
       <article class="note"><p class="section-label">Methodischer Status</p><h2>Dokumentiert · analog · interpretiert</h2><p><strong>Dokumentiert:</strong> Carnuntums städtische und verkehrsgeographische Lage sowie Gasthäuser und Tavernen im archäologischen Kontext. <strong>Typologisches Analogon:</strong> römische Speise- und Getränkelokale anderer Fundorte. <strong>Interpretiert:</strong> Eumachus’ Biographie, das Aussehen der Personen, der konkrete Innenraum, Speisen, Dialog, Verhalten und Ereignis. Das Bild ist kein archäologischer Scan, sondern eine autorschaftlich geleitete digitale WebAR-Rekonstruktion.</p></article>
+    </section>
+
+    <section class="localized character" data-copy="hr">
+      <figure>
+        <img src="./assets/eumachus-guide.jpg" alt="Prizor termopolija; Eumachus je označen ispred lijeve strane šanka.">
+        <div class="locator" aria-hidden="true"><span class="locator-dot"></span><span class="locator-label">Eumachus</span></div>
+      </figure>
+      <div class="character-copy">
+        <p class="section-label">Pronađite Eumachusa</p>
+        <h2>Glas ispred šanka</h2>
+        <p>Eumachus je niski, ćelavi muškarac ispred lijeve strane šanka. Gestikulira i viče prema ostalima. Oznaka služi samo za orijentaciju na ovoj fotografiji; u prostornom prizoru pronaći ćete ga po položaju, kretnjama i glasu.</p>
+      </div>
+    </section>
+    <section class="localized character" data-copy="en" hidden>
+      <figure>
+        <img src="./assets/eumachus-guide.jpg" alt="Thermopolium scene; Eumachus is marked in front of the left side of the counter.">
+        <div class="locator" aria-hidden="true"><span class="locator-dot"></span><span class="locator-label">Eumachus</span></div>
+      </figure>
+      <div class="character-copy"><p class="section-label">Find Eumachus</p><h2>The voice in front of the counter</h2><p>Eumachus is the short, bald man in front of the left side of the counter. He gestures and shouts towards the others. The marker is only an orientation aid in this still; in the spatial scene, find him by his position, movement and voice.</p></div>
+    </section>
+    <section class="localized character" data-copy="de" hidden>
+      <figure>
+        <img src="./assets/eumachus-guide.jpg" alt="Thermopolium-Szene; Eumachus ist vor der linken Seite der Theke markiert.">
+        <div class="locator" aria-hidden="true"><span class="locator-dot"></span><span class="locator-label">Eumachus</span></div>
+      </figure>
+      <div class="character-copy"><p class="section-label">Finden Sie Eumachus</p><h2>Die Stimme vor der Theke</h2><p>Eumachus ist der kleine, kahlköpfige Mann vor der linken Seite der Theke. Er gestikuliert und ruft den anderen zu. Die Markierung dient nur zur Orientierung auf diesem Standbild; in der räumlichen Szene erkennen Sie ihn an Position, Bewegung und Stimme.</p></div>
     </section>
 
     <section class="sources" data-mode-only="scientific">
@@ -179,6 +228,10 @@
         <li><a href="https://culture.ec.europa.eu/cultural-heritage/initiatives-and-success-stories/european-heritage-label/european-heritage-label-sites/archaeological-park-carnuntum-austria" target="_blank" rel="noreferrer">European Commission — Archaeological Park Carnuntum</a></li>
         <li><a href="https://iris.uniroma1.it/handle/11573/1662241" target="_blank" rel="noreferrer">Sapienza University of Rome — Thracians in Rome</a></li>
         <li><a href="https://bmcr.brynmawr.edu/2010/2010.07.09/" target="_blank" rel="noreferrer">Bryn Mawr Classical Review — Thracians in the Roman Imperial Army</a></li>
+        <li><a href="https://www.carnuntum.at/bs/magazine/dining-in-carnuntum-food-culture-along-the-danube-limes/2308" target="_blank" rel="noreferrer">Römerstadt Carnuntum — Dining in Carnuntum</a></li>
+        <li><a href="https://www.carnuntum.at/en/animal-bones" target="_blank" rel="noreferrer">Römerstadt Carnuntum — Animal bones and everyday life</a></li>
+        <li><a href="https://www.carnuntum.at/en/magazine/fear-and-loathing-in-carnuntum-wein-und-andere-genussmittel-in-der-antike/2245" target="_blank" rel="noreferrer">Römerstadt Carnuntum — Wine and other indulgences</a></li>
+        <li><a href="https://pompeiisites.org/en/press-releases/from-the-12th-august-the-thermopolium-of-regio-v-is-opening-to-the-public/" target="_blank" rel="noreferrer">Pompeii Archaeological Park — Thermopolium of Regio V</a></li>
       </ul>
     </section>
   </main>
