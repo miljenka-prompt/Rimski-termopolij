@@ -11,9 +11,11 @@ const SCENE_WIDTH = SCENE_HEIGHT * SCENE_ASPECT * SCENE_WIDTH_SCALE
 const FADE_OUT_START = 28.55
 const LOOP_AT = 29.25
 const FADE_IN_END = 1.15
-const LANGUAGE = ['hr', 'en', 'de'].includes(new URLSearchParams(location.search).get('lang'))
-  ? new URLSearchParams(location.search).get('lang')
-  : 'hr'
+const PARAMS = new URLSearchParams(location.search)
+const SITE = PARAMS.get('site') === 'ostia' ? 'ostia' : 'carnuntum'
+const LANGUAGE = ['hr', 'en', 'de', 'it'].includes(PARAMS.get('lang'))
+  ? PARAMS.get('lang')
+  : (SITE === 'ostia' ? 'it' : 'hr')
 const COPY = {
   hr: {
     back: '← Projekt', layer: 'CARNUNTUM · ŽIVI SLOJ', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
@@ -38,7 +40,19 @@ const COPY = {
     pause: 'Szene pausieren', loadError: 'Die Szene konnte nicht geladen werden. Aktualisieren Sie die Seite und versuchen Sie es erneut.',
     tapPlay: 'Das Thermopolium ist platziert. Tippen Sie auf „Szene und Ton starten“.', opened: 'Das Thermopolium wurde im Raum geöffnet.',
     replaceHint: 'Richten Sie die Kamera auf den Boden und wählen Sie eine neue Position.', first: 'Tippen Sie zuerst auf den Boden, um das Thermopolium zu platzieren.'
+  },
+  it: {
+    back: '← Progetto', layer: 'OSTIA ANTICA · STRATO VIVO', title: 'Aedificia iam habemus. Sed ubi sunt homines?',
+    intro: 'Punta la fotocamera verso il suolo e tocca il punto in cui vuoi aprire il thermopolium.',
+    hint: 'Tocca il suolo per far apparire il thermopolium', replace: 'Posiziona di nuovo', play: 'Avvia scena e suono',
+    pause: 'Metti in pausa', loadError: 'La scena non è stata caricata. Aggiorna la pagina e riprova.',
+    tapPlay: 'Il thermopolium è posizionato. Tocca “Avvia scena e suono”.', opened: 'Il thermopolium è aperto nel tuo spazio.',
+    replaceHint: 'Punta la fotocamera verso il suolo e scegli una nuova posizione.', first: 'Prima tocca il suolo per posizionare il thermopolium.'
   }
+}
+const LAYERS = {
+  carnuntum: {hr:'CARNUNTUM · ŽIVI SLOJ',en:'CARNUNTUM · LIVING LAYER',de:'CARNUNTUM · LEBENDIGE SCHICHT',it:'CARNUNTUM · STRATO VIVO'},
+  ostia: {it:'OSTIA ANTICA · STRATO VIVO',en:'OSTIA ANTICA · LIVING LAYER',hr:'OSTIA ANTICA · ŽIVI SLOJ',de:'OSTIA ANTICA · LEBENDIGE SCHICHT'}
 }
 const copy = (key) => COPY[LANGUAGE][key]
 
@@ -236,7 +250,7 @@ function placeAt(clientX, clientY, canvas) {
 }
 
 const spatialModule = () => ({
-  name: 'carnuntum-living-thermopolium',
+  name: `${SITE}-living-thermopolium`,
   onStart: ({canvas}) => {
     const {scene, camera} = XR8.Threejs.xrScene()
     xrCamera = camera
@@ -264,8 +278,8 @@ const spatialModule = () => ({
 function start() {
   document.documentElement.lang = LANGUAGE
   $('back-link').textContent = copy('back')
-  $('back-link').href = `./?lang=${LANGUAGE}`
-  $('mode-label').textContent = copy('layer')
+  $('back-link').href = SITE === 'ostia' ? `./ostia.html?lang=${LANGUAGE}` : `./?lang=${LANGUAGE}`
+  $('mode-label').textContent = LAYERS[SITE][LANGUAGE]
   $('scene-title').textContent = copy('title')
   $('status').textContent = copy('intro')
   $('placement-hint').textContent = copy('hint')
