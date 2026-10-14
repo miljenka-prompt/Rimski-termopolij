@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#1b100b">
   <meta name="description" content="Ostia Antica: scena WebAR spaziale di un thermopolium vivo nello spazio reale.">
   <title>Ostia Antica · Il thermopolium vivo</title>
-  <link rel="stylesheet" href="./site.css?v=ostia1">
+  <link rel="stylesheet" href="./site.css?v=ostia2">
 </head>
 <body>
   <header class="hero">
@@ -158,9 +158,8 @@
     const modeToggle = document.getElementById('modeToggle')
     const modeLabel = document.getElementById('modeLabel')
     const params = new URLSearchParams(location.search)
-    const storedLanguage = localStorage.getItem('ostiaLang')
     const storedMode = localStorage.getItem('ostiaMode')
-    let language = ['it','en','hr'].includes(params.get('lang')) ? params.get('lang') : (['it','en','hr'].includes(storedLanguage) ? storedLanguage : 'it')
+    let language = ['it','en','hr'].includes(params.get('lang')) ? params.get('lang') : 'it'
     let mode = ['scientific','visitor'].includes(params.get('mode')) ? params.get('mode') : (['scientific','visitor'].includes(storedMode) ? storedMode : 'scientific')
     const modeLabels = {it:{scientific:'Versione scientifica',visitor:'Versione visitatore'},en:{scientific:'Scientific',visitor:'Visitor'},hr:{scientific:'Znanstvena verzija',visitor:'Posjetiteljska verzija'}}
     const brandLabels = {it:'OSTIA ANTICA · STRATO VIVO',en:'OSTIA ANTICA · LIVING LAYER',hr:'OSTIA ANTICA · ŽIVI SLOJ'}
@@ -168,13 +167,21 @@
       document.documentElement.lang=language
       buttons.forEach(item=>item.classList.toggle('is-active',item.dataset.lang===language))
       copies.forEach(copy=>{copy.hidden=copy.dataset.copy!==language||(copy.dataset.mode&&copy.dataset.mode!==mode)})
-      document.querySelectorAll('[data-mode-only]').forEach(item=>{item.hidden=item.dataset.modeOnly!==mode})
+      document.querySelectorAll('[data-mode-only]').forEach(item=>{
+        item.hidden=item.dataset.modeOnly!==mode||(item.dataset.copy&&item.dataset.copy!==language)
+      })
       modeToggle.dataset.mode=mode
       modeToggle.setAttribute('aria-checked',String(mode==='scientific'))
       modeLabel.textContent=modeLabels[language][mode]
       document.getElementById('brand').textContent=brandLabels[language]
     }
-    buttons.forEach(button=>button.addEventListener('click',()=>{language=button.dataset.lang;localStorage.setItem('ostiaLang',language);apply()}))
+    buttons.forEach(button=>button.addEventListener('click',()=>{
+      language=button.dataset.lang
+      const next=new URL(location.href)
+      next.searchParams.set('lang',language)
+      history.replaceState(null,'',next)
+      apply()
+    }))
     modeToggle.addEventListener('click',()=>{mode=mode==='scientific'?'visitor':'scientific';localStorage.setItem('ostiaMode',mode);apply()})
     apply()
   </script>
