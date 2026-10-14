@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#170d08">
+  <title>Ostia Antica · QR WebAR</title>
+  <style>
+    :root{color-scheme:dark;--ink:#f8ecdf;--accent:#f2bb7c;--muted:#cbb8a5;--bg:#170d08}
+    *{box-sizing:border-box}body{margin:0;min-height:100svh;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;text-align:center}
+    main{width:min(680px,calc(100% - 28px));margin:auto;padding:28px 0 max(38px,env(safe-area-inset-bottom))}
+    h1{margin:8px 0 4px;color:var(--accent);font-size:clamp(1.35rem,6vw,2rem);letter-spacing:.08em}.subtitle{margin:0 0 22px;font-weight:750;letter-spacing:.04em}
+    .card{display:block;border-radius:24px;overflow:hidden;border:1px solid rgba(242,187,124,.3);background:#fffaf3;box-shadow:0 18px 50px rgba(0,0,0,.38)}.card img{display:block;width:100%;height:auto}.hint{margin:18px 8px 12px;color:var(--muted)}
+    .open{display:block;margin:0 auto 14px;padding:16px 22px;border-radius:999px;background:var(--ink);color:#24150d;text-decoration:none;font-size:1.08rem;font-weight:850}
+    .url{display:block;padding:12px;color:var(--accent);overflow-wrap:anywhere;text-underline-offset:3px}.download{display:inline-block;margin-top:10px;color:var(--muted);text-underline-offset:3px}
+    footer{margin-top:28px;color:#a99582;font-size:.78rem;line-height:1.5}
+  </style>
+</head>
+<body>
+  <main>
+    <h1>OSTIA ANTICA · STRATO VIVO</h1>
+    <p class="subtitle">Un thermopolium vivo nello spazio reale</p>
+
+    <a class="card" href="./ostia.html?lang=it" aria-label="Apri la dimostrazione WebAR di Ostia Antica">
+      <img src="./assets/ostia-antica-qr-card.png?v=2" alt="Codice QR per la dimostrazione WebAR di Ostia Antica">
+    </a>
+
+    <p class="hint">Tocca l’immagine o il pulsante per aprire la dimostrazione. Il QR serve per la scansione da un altro dispositivo.</p>
+    <a class="open" href="./ostia.html?lang=it">Apri la dimostrazione WebAR</a>
+    <a class="url" href="./ostia.html?lang=it">miljenka-prompt.github.io/Rimski-termopolij/ostia.html?lang=it</a>
+    <a class="download" href="./assets/ostia-antica-qr-card.png" download>Scarica la scheda QR</a>
+
+    <footer>Concept, authorship &amp; creative direction: Miljenka Ćurković<br>AI architecture &amp; development collaborator: ChatGPT — OpenAI</footer>
+  </main>
+</body>
+</html>
